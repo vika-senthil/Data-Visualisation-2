@@ -1,0 +1,59 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "World map of plane crashes with year slider",
+  "width": 900,
+  "height": 500,
+
+  "data": {
+    "url": "https://vika-senthil.github.io/W10HWFinal/Plane_Crashes_Final.csv"
+  },
+
+  "transform": [
+    { "calculate": "year(datum.Date)", "as": "Year" },
+    { "filter": "datum.Latitude != null && datum.Longitude != null" },
+    { "filter": "datum.Fatalities > 0" },
+    { "filter": "datum.Year >= sliderYear[0] && datum.Year <= sliderYear[1]" }
+  ],
+
+  "params": [
+    {
+      "name": "sliderYear",
+      "value": [1908, 2023],
+      "bind": {
+        "input": "range",
+        "min": 1908,
+        "max": 2023,
+        "step": 1,
+        "name": "Year Range: "
+      }
+    }
+  ],
+
+  "projection": { "type": "equalEarth" },
+
+  "layer": [
+    {
+      "data": {
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
+        "format": { "type": "topojson", "feature": "countries" }
+      },
+      "mark": { "type": "geoshape", "fill": "#e0e0e0", "stroke": "white" }
+    },
+    {
+      "mark": { "type": "circle", "opacity": 0.6, "stroke": "black", "strokeWidth": 0.2 },
+      "encoding": {
+        "longitude": { "field": "Longitude", "type": "quantitative" },
+        "latitude": { "field": "Latitude", "type": "quantitative" },
+        "size": { "field": "Fatalities", "type": "quantitative", "scale": { "domain": [1, 600], "range": [10, 1000] } },
+        "color": { "field": "Fatalities", "type": "quantitative", "scale": { "scheme": "reds" } },
+        "tooltip": [
+          { "field": "Date", "type": "temporal" },
+          { "field": "Location", "type": "nominal" },
+          { "field": "Operator", "type": "nominal" },
+          { "field": "Fatalities", "type": "quantitative" },
+          { "field": "Summary", "type": "nominal" }
+        ]
+      }
+    }
+  ]
+}
