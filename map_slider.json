@@ -4,20 +4,12 @@
   "width": 1000,
   "height": 540,
   "projection": {"type": "equalEarth"},
-
   "params": [
-    {
-      "name": "yearStart",
-      "value": 1908,
-      "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Start: "}
-    },
-    {
-      "name": "yearEnd",
-      "value": 2023,
-      "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "End: "}
-    }
+    {"name": "yearStart", "value": 1908,
+     "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Start: "}},
+    {"name": "yearEnd", "value": 2023,
+     "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "End: "}}
   ],
-
   "layer": [
     {
       "data": {
@@ -26,7 +18,6 @@
       },
       "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
     },
-
     {
       "data": {
         "url": "https://cdn.jsdelivr.net/gh/vika-senthil/W10HWFinal@main/Plane_Crashes_Final.csv",
@@ -59,15 +50,9 @@
           {"field": "Operator"},
           {"field": "Aboard", "type": "quantitative"},
           {"field": "Fatalities", "type": "quantitative"},
-          {"field": "Ground", "type": "quantitative"},
-          {"field": "Summary"}
+          {"field": "Ground", "type": "quantitative"}
         ]
       }
-    }
-  ]
-}
-
-
     }
   ]
 }
