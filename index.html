@@ -9,22 +9,17 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
-    :root { --fg: #111; --muted: #555; --bg: #fafafa; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      margin: 0; padding: 24px; color: var(--fg); background: var(--bg);
-      line-height: 1.6;
-    }
-    header { max-width: 1100px; margin: 0 auto 16px auto; }
-    h1 { margin: 0 0 8px 0; font-size: 28px; }
-    p { margin: 8px 0; color: var(--muted); }
-    .viz-wrap { max-width: 1100px; margin: 16px auto; }
-    .footer { max-width: 1100px; margin: 24px auto 0; font-size: 14px; color: var(--muted); }
-    .panel {
-      background: white; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.07);
-      padding: 16px 16px 6px; border: 1px solid #eee;
-    }
-    .note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    :root { --fg:#111; --muted:#555; --bg:#fafafa; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+           margin:0; padding:24px; color:var(--fg); background:var(--bg); line-height:1.6; }
+    header, .viz-wrap, .footer { max-width:1100px; margin:0 auto; }
+    header { margin-bottom:16px; }
+    h1 { margin:0 0 8px 0; font-size:28px; }
+    p { margin:8px 0; color:var(--muted); }
+    .panel { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
+             padding:16px; border:1px solid #eee; }
+    .note { font-size:13px; color:var(--muted); margin-top:8px; }
+    .error { color:#b00020; white-space:pre-wrap; margin-top:12px; }
   </style>
 </head>
 <body>
@@ -34,18 +29,95 @@
   </header>
 
   <div class="viz-wrap panel">
+    <!-- Bind sliders will appear just above/beside this container automatically -->
     <div id="crash_map" aria-label="Map of plane crashes with fatalities"></div>
+    <div id="err" class="error" hidden></div>
     <div class="note">Tip: Drag the sliders to focus on severe crashes or a specific time period.</div>
   </div>
 
-  <div class="footer">
+  <div class="footer" style="margin-top:24px;">
     <p>Data: <code>Plane_Crashes_Final.csv</code>. Built with Vega-Lite.</p>
   </div>
 
   <script>
-    // Embed the Vega-Lite spec (must be in the same folder)
-    vegaEmbed('#crash_map', 'plane_crash_map.json', {actions: {export: true, source: true, editor: true}})
-      .catch(console.error);
+    // Inline Vega-Lite spec (no external JSON file needed)
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "description": "Plane crash locations with fatalities. Sliders to filter by year and minimum fatalities.",
+      "width": 1000,
+      "height": 540,
+      "projection": {"type": "equalEarth"},
+      "params": [
+        {
+          "name": "yearSel",
+          "value": 1950,
+          "bind": {"input": "range", "min": 1900, "max": 2025, "step": 1, "name": "Year: "}
+        },
+        {
+          "name": "minFatal",
+          "value": 0,
+          "bind": {"input": "range", "min": 0, "max": 600, "step": 5, "name": "Min fatalities: "}
+        }
+      ],
+      "layer": [
+        {
+          "data": {
+            "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
+            "format": {"type": "topojson", "feature": "countries"}
+          },
+          "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
+        },
+        {
+          "data": { "url": "Plane_Crashes_Final.csv", "format": {"type": "csv"} },
+          "transform": [
+            { "calculate": "year(timeParse(datum.Date, '%m/%d/%Y'))", "as": "Year" },
+            { "filter": "isValid(datum.Latitude) && isValid(datum.Longitude)" },
+            { "filter": "datum.Year == yearSel" },
+            { "filter": "toNumber(datum.Fatalities) >= minFatal" }
+          ],
+          "mark": {"type": "circle", "opacity": 0.7},
+          "encoding": {
+            "longitude": {"field": "Longitude", "type": "quantitative"},
+            "latitude": {"field": "Latitude", "type": "quantitative"},
+            "size": {
+              "field": "Fatalities", "type": "quantitative", "title": "Fatalities",
+              "scale": {"range": [12, 900]}, "legend": {"clipHeight": 22}
+            },
+            "color": {
+              "field": "Fatalities", "type": "quantitative", "title": "Fatalities",
+              "scale": {"scheme": "reds"}
+            },
+            "tooltip": [
+              {"field": "Date", "title": "Date"},
+              {"field": "Time", "title": "Time"},
+              {"field": "Location", "title": "Location"},
+              {"field": "Operator", "title": "Operator"},
+              {"field": "Flight #", "title": "Flight #"},
+              {"field": "Route", "title": "Route"},
+              {"field": "AC Type", "title": "Aircraft"},
+              {"field": "Registration", "title": "Registration"},
+              {"field": "Aboard", "title": "Aboard"},
+              {"field": "Fatalities", "title": "Fatalities"},
+              {"field": "Ground", "title": "Ground"},
+              {"field": "Summary", "title": "Summary"}
+            ]
+          }
+        }
+      ],
+      "config": {
+        "legend": {"orient": "bottom", "titleFontSize": 12, "labelFontSize": 11},
+        "view": {"stroke": null},
+        "font": "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+      }
+    };
+
+    vegaEmbed('#crash_map', spec, {actions: {export: true, source: true, editor: true}})
+      .catch(err => {
+        const el = document.getElementById('err');
+        el.hidden = false;
+        el.textContent = "Embed error:\\n" + err;
+        console.error(err);
+      });
   </script>
 </body>
 </html>
