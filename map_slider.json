@@ -4,7 +4,13 @@
   "width": 900,
   "height": 500,
 
-  "data": { "url": "Plane_Crashes_Final.csv", "format": {"type":"csv"} }
+  {
+  "data": { "url": "Plane_Crashes_Final.csv", "format": {"type":"csv"} },
+  "transform": [
+    { "calculate": "year(toDate(datum.Date))", "as": "Year" },
+    { "filter": "isValid(datum.Latitude) && isValid(datum.Longitude)" }
+  ]
+}
 
 
   "transform": [
