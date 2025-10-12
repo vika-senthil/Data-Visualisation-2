@@ -1,79 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Global Plane Crashes (1908–2023)</title>
-  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#fafafa; }
-    #vis { max-width: 1100px; margin: 24px auto; }
-  </style>
-</head>
-<body>
-  <h2 style="text-align:center;">✈️ Global Plane Crashes (1908–2023)</h2>
-  <p style="text-align:center;color:#666;margin-top:-8px;">Circle size & colour = Fatalities · Drag the sliders to change the year range</p>
-  <div id="vis"></div>
-  <div id="err" style="color:#b00020;text-align:center;"></div>
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Global Plane Crashes (1908–2023)",
+  "width": 1000,
+  "height": 540,
+  "projection": {"type": "equalEarth"},
 
-  <script>
-  const CSV_URL = "https://cdn.jsdelivr.net/gh/vika-senthil/W10HWFinal@main/Plane_Crashes_Final.csv"; // works even if Pages is down
+  "params": [
+    {
+      "name": "yearStart",
+      "value": 1908,
+      "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Start: "}
+    },
+    {
+      "name": "yearEnd",
+      "value": 2023,
+      "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "End: "}
+    }
+  ],
 
-  const spec = {
-    "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-    "width": 1000, "height": 540, "projection":{"type":"equalEarth"},
-    "params":[
-      {"name":"yearStart","value":1908,"bind":{"input":"range","min":1908,"max":2023,"step":1,"name":"Start: "}},
-      {"name":"yearEnd","value":2023,"bind":{"input":"range","min":1908,"max":2023,"step":1,"name":"End: "}}
-    ],
-    "layer":[
-      {
-        "data":{"url":"https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
-                "format":{"type":"topojson","feature":"countries"}},
-        "mark":{"type":"geoshape","fill":"#e6e6e6","stroke":"white"}
+  "layer": [
+    {
+      "data": {
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
+        "format": {"type": "topojson", "feature": "countries"}
       },
-      {
-        "data":{
-          "url": CSV_URL,
-          "format":{
-            "type":"csv",
-            "parse":{
-              "Latitude":"number","Longitude":"number","Fatalities":"number","Aboard":"number","Ground":"number","Date":"date"
-            }
-          }
-        },
-        "transform":[
-          {"timeUnit":"year","field":"Date","as":"Year"},
-          {"filter":"isValid(datum.Latitude) && isValid(datum.Longitude)"},
-          {"filter":"datum.Year >= yearStart && datum.Year <= yearEnd"}
-        ],
-        "mark":{"type":"circle","opacity":0.65,"stroke":"black","strokeWidth":0.25},
-        "encoding":{
-          "longitude":{"field":"Longitude","type":"quantitative"},
-          "latitude":{"field":"Latitude","type":"quantitative"},
-          "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[10,900]}},
-          "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
-          "tooltip":[
-            {"field":"Date","type":"temporal"},
-            {"field":"Location"},
-            {"field":"Operator"},
-            {"field":"Aboard","type":"quantitative"},
-            {"field":"Fatalities","type":"quantitative"},
-            {"field":"Ground","type":"quantitative"}
-          ]
-        }
-      }
-    ]
-  };
+      "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
+    },
 
-  vegaEmbed('#vis', spec, {actions:false}).catch(e => {
-    document.getElementById('err').textContent = 'Embed error: ' + e.message;
-    console.error(e);
-  });
-  </script>
-</body>
-</html>
+    {
+      "data": {
+        "url": "https://cdn.jsdelivr.net/gh/vika-senthil/W10HWFinal@main/Plane_Crashes_Final.csv",
+        "format": {
+          "type": "csv",
+          "parse": {
+            "Latitude": "number",
+            "Longitude": "number",
+            "Fatalities": "number",
+            "Aboard": "number",
+            "Ground": "number",
+            "Date": "date"
+          }
+        }
+      },
+      "transform": [
+        {"timeUnit": "year", "field": "Date", "as": "Year"},
+        {"filter": "isValid(datum.Latitude) && isValid(datum.Longitude)"},
+        {"filter": "datum.Year >= yearStart && datum.Year <= yearEnd"}
+      ],
+      "mark": {"type": "circle", "opacity": 0.65, "stroke": "black", "strokeWidth": 0.25},
+      "encoding": {
+        "longitude": {"field": "Longitude", "type": "quantitative"},
+        "latitude": {"field": "Latitude", "type": "quantitative"},
+        "size": {"field": "Fatalities", "type": "quantitative", "scale": {"range": [10, 900]}},
+        "color": {"field": "Fatalities", "type": "quantitative", "scale": {"scheme": "reds"}},
+        "tooltip": [
+          {"field": "Date", "type": "temporal"},
+          {"field": "Location"},
+          {"field": "Operator"},
+          {"field": "Aboard", "type": "quantitative"},
+          {"field": "Fatalities", "type": "quantitative"},
+          {"field": "Ground", "type": "quantitative"},
+          {"field": "Summary"}
+        ]
+      }
+    }
+  ]
+}
+
 
     }
   ]
