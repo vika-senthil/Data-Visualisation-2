@@ -1,51 +1,50 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "width": 1000,
-  "height": 550,
+  "height": 540,
   "projection": {"type": "equalEarth"},
-  "title": "Global Plane Crashes (1908–2023)",
-  "params": [
-    {
-      "name": "Year",
-      "value": 1908,
-      "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Year: "}
-    }
-  ],
   "layer": [
     {
       "data": {
-        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
-        "format": {"type": "topojson", "feature": "countries"}
+        "url": "https://cdn.jsdelivr.net/gh/vika-senthil/W10HWFinal@main/Plane_Crashes_Final.csv",
+        "format": {"type":"csv"}
       },
-      "mark": {"type": "geoshape", "fill": "#e0e0e0", "stroke": "white"}
+      "transform": [
+        {"filter": "true"}  // keeps the layer alive even if the first layer fails
+      ],
+      "data": {
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
+        "format": {"type":"topojson", "feature": "countries"}
+      },
+      "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
     },
     {
       "data": {
-        "url": "https://vika-senthil.github.io/W10HWFinal/Plane_Crashes_Final.csv",
-        "format": {"type": "csv"}
+        "url": "https://cdn.jsdelivr.net/gh/vika-senthil/W10HWFinal@main/Plane_Crashes_Final.csv",
+        "format": {
+          "type": "csv",
+          "parse": {"Latitude": "number", "Longitude": "number", "Fatalities": "number"}
+        }
       },
       "transform": [
-        {"calculate": "year(toDate(datum.Date))", "as": "YearNum"},
-        {"filter": "isValid(datum.Latitude) && isValid(datum.Longitude) && datum.YearNum == Year"}
+        {"filter": "isValid(datum.Latitude) && isValid(datum.Longitude)"}
       ],
       "mark": {"type": "circle", "opacity": 0.6, "stroke": "black", "strokeWidth": 0.25},
       "encoding": {
         "longitude": {"field": "Longitude", "type": "quantitative"},
         "latitude": {"field": "Latitude", "type": "quantitative"},
-        "size": {"field": "Fatalities", "type": "quantitative", "scale": {"range": [10, 800]}},
+        "size": {"field": "Fatalities", "type": "quantitative", "scale": {"range": [10, 900]}},
         "color": {"field": "Fatalities", "type": "quantitative", "scale": {"scheme": "reds"}},
         "tooltip": [
-          {"field": "Date", "type": "temporal"},
+          {"field": "Date", "type": "nominal"},
           {"field": "Location", "type": "nominal"},
           {"field": "Operator", "type": "nominal"},
+          {"field": "Aboard", "type": "quantitative"},
           {"field": "Fatalities", "type": "quantitative"},
-          {"field": "Aboard", "type": "quantitative"}
+          {"field": "Ground", "type": "quantitative"}
         ]
       }
     }
   ]
 }
 
-    }
-  ]
-}
