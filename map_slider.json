@@ -1,9 +1,15 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "Sanity Check: Inline Points",
+  "title": "Global Plane Crashes (1908–2023)",
   "width": 1000,
   "height": 540,
   "projection": {"type": "equalEarth"},
+
+  "params": [
+    {"name": "yearStart", "value": 1908, "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Start: "}},
+    {"name": "yearEnd",   "value": 2023, "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "End: "}}
+  ],
+
   "layer": [
     {
       "data": {
@@ -14,17 +20,37 @@
     },
     {
       "data": {
-        "values": [
-          {"Location":"Fort Myer, Virginia","Latitude":38.883541,"Longitude":-77.0810889,"Fatalities":1,"Date":"1908-09-17"},
-          {"Location":"Juvisy-sur-Orge, France","Latitude":48.692871,"Longitude":2.3708618,"Fatalities":1,"Date":"1909-09-07"},
-          {"Location":"Atlantic City, New Jersey","Latitude":39.3636917,"Longitude":-74.4291041,"Fatalities":5,"Date":"1912-07-12"}
-        ]
+        "url": "Plane_Crashes_Final.csv",
+        "format": {
+          "type": "csv",
+          "parse": {
+            "Latitude": "number",
+            "Longitude": "number",
+            "Fatalities": "number",
+            "Aboard": "number",
+            "Ground": "number",
+            "Date": "date"
+          }
+        }
       },
-      "mark": {"type": "circle", "color": "red", "opacity": 0.7, "size": 120},
+      "transform": [
+        {"timeUnit": "year", "field": "Date", "as": "Year"},
+        {"filter": "isValid(datum.Latitude) && isValid(datum.Longitude)"},
+        {"filter": "datum.Year >= yearStart && datum.Year <= yearEnd"}
+      ],
+      "mark": {"type": "circle", "opacity": 0.65, "stroke": "black", "strokeWidth": 0.25},
       "encoding": {
         "longitude": {"field": "Longitude", "type": "quantitative"},
         "latitude": {"field": "Latitude", "type": "quantitative"},
-        "tooltip": [{"field": "Location"}, {"field": "Date"}, {"field": "Fatalities"}]
+        "size": {"field": "Fatalities", "type": "quantitative", "scale": {"range": [10, 900]}},
+        "color": {"field": "Fatalities", "type": "quantitative", "scale": {"scheme": "reds"}},
+        "tooltip": [
+          {"field": "Date", "type": "temporal"},
+          {"field": "Location"},
+          {"field": "Operator"},
+          {"field": "Aboard", "type": "quantitative"},
+          {"field": "Fatalities", "type": "quantitative"}
+        ]
       }
     }
   ]
