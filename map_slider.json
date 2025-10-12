@@ -1,40 +1,30 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "CSV Load Test: Points Without Filters",
-  "width": 1000, "height": 540, "projection": {"type":"equalEarth"},
+  "title": "Sanity Check: Inline Points",
+  "width": 1000,
+  "height": 540,
+  "projection": {"type": "equalEarth"},
   "layer": [
     {
-      "data": {"url":"https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
-               "format":{"type":"topojson","feature":"countries"}},
-      "mark":{"type":"geoshape","fill":"#e6e6e6","stroke":"white"}
+      "data": {
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
+        "format": {"type": "topojson", "feature": "countries"}
+      },
+      "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
     },
     {
       "data": {
-        "url": "Plane_Crashes_Final.csv",
-        "format": {
-          "type": "csv",
-          "parse": {
-            "Latitude":"number",
-            "Longitude":"number",
-            "Fatalities":"number",
-            "Aboard":"number",
-            "Ground":"number"
-          }
-        }
-      },
-      "transform": [
-        {"filter": "isValid(datum.Latitude) && isValid(datum.Longitude)"}
-      ],
-      "mark": {"type":"circle","opacity":0.65,"stroke":"black","strokeWidth":0.25},
-      "encoding": {
-        "longitude": {"field":"Longitude","type":"quantitative"},
-        "latitude": {"field":"Latitude","type":"quantitative"},
-        "size": {"field":"Fatalities","type":"quantitative","scale":{"range":[10,900]}},
-        "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
-        "tooltip":[
-          {"field":"Date"},{"field":"Location"},{"field":"Operator"},
-          {"field":"Aboard"},{"field":"Fatalities"},{"field":"Ground"}
+        "values": [
+          {"Location":"Fort Myer, Virginia","Latitude":38.883541,"Longitude":-77.0810889,"Fatalities":1,"Date":"1908-09-17"},
+          {"Location":"Juvisy-sur-Orge, France","Latitude":48.692871,"Longitude":2.3708618,"Fatalities":1,"Date":"1909-09-07"},
+          {"Location":"Atlantic City, New Jersey","Latitude":39.3636917,"Longitude":-74.4291041,"Fatalities":5,"Date":"1912-07-12"}
         ]
+      },
+      "mark": {"type": "circle", "color": "red", "opacity": 0.7, "size": 120},
+      "encoding": {
+        "longitude": {"field": "Longitude", "type": "quantitative"},
+        "latitude": {"field": "Latitude", "type": "quantitative"},
+        "tooltip": [{"field": "Location"}, {"field": "Date"}, {"field": "Fatalities"}]
       }
     }
   ]
