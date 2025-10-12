@@ -4,9 +4,8 @@
   "width": 900,
   "height": 500,
 
-  "data": {
-    "url": "https://vika-senthil.github.io/W10HWFinal/Plane_Crashes_Final.csv"
-  },
+  "data": { "url": "Plane_Crashes_Final.csv", "format": {"type":"csv"} }
+
 
   "transform": [
     { "calculate": "year(datum.Date)", "as": "Year" },
