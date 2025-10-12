@@ -1,20 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Global Plane Crashes 1908–2023</title>
+  <meta charset="UTF-8" />
+  <title>Sanity Check – Inline Points</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#fafafa; }
+    #vis { max-width: 1100px; margin: 24px auto; }
+  </style>
 </head>
-<body style="background:#fafafa; font-family:sans-serif;">
-  <h2 style="text-align:center;">✈️ Global Plane Crashes (1908–2023)</h2>
+<body>
+  <h2 style="text-align:center;">✈️ Sanity Check: Inline Points</h2>
   <div id="vis"></div>
-  <p style="text-align:center; color:#555;">Circle size = Fatalities | Drag slider to change year</p>
+  <div id="err" style="color:#b00020;text-align:center;"></div>
 
-  <script type="text/javascript">
-    var spec = "map_slider.json";
-    vegaEmbed('#vis', spec, { "actions": false });
+  <script>
+  const spec = {
+    "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 1000, "height": 540, "projection":{"type":"equalEarth"},
+    "layer":[
+      {
+        "data": {
+          "url":"https://cdn.jsdelivr.net/npm/vega-datasets@2.4.0/data/world-110m.json",
+          "format":{"type":"topojson","feature":"countries"}
+        },
+        "mark":{"type":"geoshape","fill":"#e6e6e6","stroke":"white"}
+      },
+      {
+        "data": {
+          "values": [
+            {"Location":"Fort Myer, Virginia","Latitude":38.883541,"Longitude":-77.0810889,"Fatalities":1,"Date":"1908-09-17"},
+            {"Location":"Juvisy-sur-Orge, France","Latitude":48.692871,"Longitude":2.3708618,"Fatalities":1,"Date":"1909-09-07"},
+            {"Location":"Atlantic City, New Jersey","Latitude":39.3636917,"Longitude":-74.4291041,"Fatalities":5,"Date":"1912-07-12"}
+          ]
+        },
+        "mark":{"type":"circle","color":"red","opacity":0.75,"size":140},
+        "encoding":{
+          "longitude":{"field":"Longitude","type":"quantitative"},
+          "latitude":{"field":"Latitude","type":"quantitative"},
+          "tooltip":[{"field":"Location"},{"field":"Date"},{"field":"Fatalities"}]
+        }
+      }
+    ]
+  };
+
+  vegaEmbed('#vis', spec, {actions:false}).catch(e => {
+    document.getElementById('err').textContent = 'Embed error: ' + e.message;
+    console.error(e);
+  });
   </script>
 </body>
 </html>
