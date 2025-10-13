@@ -10,14 +10,45 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
     :root { --fg:#111; --muted:#555; --bg:#fafafa; }
-    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-           margin:0; padding:24px; color:var(--fg); background:var(--bg); line-height:1.6; }
+    body {
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      margin:0; padding:24px; color:var(--fg); background:var(--bg); line-height:1.6;
+    }
     header, .viz-wrap, .footer { max-width:1100px; margin:0 auto; }
     header { margin-bottom:16px; }
     h1 { margin:0 0 8px 0; font-size:28px; }
     p { margin:8px 0; color:var(--muted); }
-    .panel { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
-             padding:16px; border:1px solid #eee; }
+
+    /* Infographic rectangles */
+    .infographic-row {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin:20px 0 28px 0;
+    }
+    .info-box {
+      flex:1;
+      background:white;
+      border:2px solid #ccc;
+      border-radius:12px;
+      text-align:center;
+      padding:40px 0;
+      font-weight:600;
+      color:#666;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+      transition:transform 0.2s, box-shadow 0.2s;
+    }
+    .info-box:hover {
+      transform:translateY(-3px);
+      box-shadow:0 6px 14px rgba(0,0,0,0.08);
+      color:#000;
+    }
+
+    .panel {
+      background:#fff; border-radius:14px;
+      box-shadow:0 4px 18px rgba(0,0,0,.07);
+      padding:16px; border:1px solid #eee;
+    }
     .note { font-size:13px; color:var(--muted); margin-top:8px; }
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; }
   </style>
@@ -25,14 +56,20 @@
 <body>
   <header>
     <h1>Plane Crashes — Locations & Fatalities</h1>
-    <p>Each circle marks a crash. Size and colour encode the number of fatalities. Use the controls to filter by year and minimum fatalities.</p>
+    <p>Each circle marks a crash. Size and colour encode the number of fatalities. Use the year slider to filter.</p>
+
+    <!-- Three infographic rectangles -->
+    <div class="infographic-row">
+      <div class="info-box">Infographic 1</div>
+      <div class="info-box">Infographic 2</div>
+      <div class="info-box">Infographic 3</div>
+    </div>
   </header>
 
   <div class="viz-wrap panel">
-    <!-- Bind sliders will appear just above/beside this container automatically -->
     <div id="crash_map" aria-label="Map of plane crashes with fatalities"></div>
     <div id="err" class="error" hidden></div>
-    <div class="note">Tip: Drag the sliders to focus on severe crashes or a specific time period.</div>
+    <div class="note">Tip: Drag the year slider to explore different time periods.</div>
   </div>
 
   <div class="footer" style="margin-top:24px;">
@@ -40,10 +77,10 @@
   </div>
 
   <script>
-    // Inline Vega-Lite spec (no external JSON file needed)
+    // Vega-Lite map (same as before)
     const spec = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "Plane crash locations with fatalities. Sliders to filter by year and minimum fatalities.",
+      "description": "Plane crash locations with fatalities. Filter by year only.",
       "width": 1000,
       "height": 540,
       "projection": {"type": "equalEarth"},
@@ -52,11 +89,6 @@
           "name": "yearSel",
           "value": 1950,
           "bind": {"input": "range", "min": 1900, "max": 2025, "step": 1, "name": "Year: "}
-        },
-        {
-          "name": "minFatal",
-          "value": 0,
-          "bind": {"input": "range", "min": 0, "max": 600, "step": 5, "name": "Min fatalities: "}
         }
       ],
       "layer": [
@@ -72,8 +104,7 @@
           "transform": [
             { "calculate": "year(timeParse(datum.Date, '%m/%d/%Y'))", "as": "Year" },
             { "filter": "isValid(datum.Latitude) && isValid(datum.Longitude)" },
-            { "filter": "datum.Year == yearSel" },
-            { "filter": "toNumber(datum.Fatalities) >= minFatal" }
+            { "filter": "datum.Year == yearSel" }
           ],
           "mark": {"type": "circle", "opacity": 0.7},
           "encoding": {
@@ -111,13 +142,14 @@
       }
     };
 
-    vegaEmbed('#crash_map', spec, {actions: {export: true, source: true, editor: true}})
-      .catch(err => {
-        const el = document.getElementById('err');
-        el.hidden = false;
-        el.textContent = "Embed error:\\n" + err;
+    vegaEmbed('#crash_map', spec, {actions:{export:true,source:true,editor:true}})
+      .catch(err=>{
+        const el=document.getElementById('err');
+        el.hidden=false;
+        el.textContent="Embed error:\n"+err;
         console.error(err);
       });
   </script>
 </body>
 </html>
+
