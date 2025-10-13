@@ -17,24 +17,17 @@
     header, .viz-wrap, .footer { max-width:1100px; margin:0 auto; }
     header { margin-bottom:16px; }
     h1 { margin:0 0 8px 0; font-size:28px; }
+    h2 { margin:0 0 8px 0; font-size:22px; }
     p { margin:8px 0; color:var(--muted); }
 
     /* Infographic rectangles */
     .infographic-row {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
+      display:flex; justify-content:space-between; gap:12px;
       margin:20px 0 28px 0;
     }
     .info-box {
-      flex:1;
-      background:white;
-      border:2px solid #ccc;
-      border-radius:12px;
-      text-align:center;
-      padding:40px 0;
-      font-weight:600;
-      color:#666;
+      flex:1; background:white; border:2px solid #ccc; border-radius:12px;
+      text-align:center; padding:40px 0; font-weight:600; color:#666;
       box-shadow:0 2px 8px rgba(0,0,0,0.05);
       transition:transform 0.2s, box-shadow 0.2s;
     }
@@ -45,9 +38,8 @@
     }
 
     .panel {
-      background:#fff; border-radius:14px;
-      box-shadow:0 4px 18px rgba(0,0,0,.07);
-      padding:16px; border:1px solid #eee;
+      background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
+      padding:16px; border:1px solid #eee; margin:16px auto;
     }
     .note { font-size:13px; color:var(--muted); margin-top:8px; }
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; }
@@ -66,10 +58,19 @@
     </div>
   </header>
 
+  <!-- MAP (big and first) -->
   <div class="viz-wrap panel">
+    <h2>Crash Locations & Fatalities (Map)</h2>
     <div id="crash_map" aria-label="Map of plane crashes with fatalities"></div>
     <div id="err" class="error" hidden></div>
     <div class="note">Tip: Drag the year slider to explore different time periods.</div>
+  </div>
+
+  <!-- LINE GRAPH: Fatalities vs Crashes over time -->
+  <div class="viz-wrap panel">
+    <h2>Fatalities vs Crashes Over Time</h2>
+    <p class="note" style="margin-top:0;">Annual totals — independent y-axes for readability.</p>
+    <div id="line_trends" aria-label="Line chart showing annual total fatalities and number of crashes"></div>
   </div>
 
   <div class="footer" style="margin-top:24px;">
@@ -77,12 +78,12 @@
   </div>
 
   <script>
-    // Vega-Lite map (same as before)
-    const spec = {
+    /* ========= Map: crash locations, sized/colored by fatalities ========= */
+    const specMap = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "description": "Plane crash locations with fatalities. Filter by year only.",
       "width": 1000,
-      "height": 540,
+      "height": 560,
       "projection": {"type": "equalEarth"},
       "params": [
         {
@@ -142,14 +143,73 @@
       }
     };
 
-    vegaEmbed('#crash_map', spec, {actions:{export:true,source:true,editor:true}})
+    /* ========= Line chart: fatalities (sum) vs crashes (count) ========= */
+    const specTrends = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "description": "Annual totals: fatalities (sum) vs crashes (count).",
+      "width": 1000,
+      "height": 320,
+      "data": { "url": "Plane_Crashes_Final.csv", "format": {"type": "csv"} },
+      "transform": [
+        { "calculate": "year(timeParse(datum.Date, '%m/%d/%Y'))", "as": "Year" },
+        { "filter": "isValid(datum.Year)" }
+      ],
+      "resolve": { "scale": { "y": "independent" } },
+      "layer": [
+        {
+          "transform": [
+            { "aggregate": [{"op": "sum", "field": "Fatalities", "as": "Fatalities"}], "groupby": ["Year"] }
+          ],
+          "mark": { "type": "line", "point": true },
+          "encoding": {
+            "x": { "field": "Year", "type": "quantitative", "title": "Year" },
+            "y": { "field": "Fatalities", "type": "quantitative", "axis": { "title": "Fatalities" } },
+            "color": { "value": "#d62728" },
+            "tooltip": [
+              { "field": "Year", "title": "Year" },
+              { "field": "Fatalities", "title": "Total Fatalities" }
+            ]
+          }
+        },
+        {
+          "transform": [
+            { "aggregate": [{"op": "count", "as": "Crashes"}], "groupby": ["Year"] }
+          ],
+          "mark": { "type": "line", "point": true },
+          "encoding": {
+            "x": { "field": "Year", "type": "quantitative", "title": "Year" },
+            "y": { "field": "Crashes", "type": "quantitative", "axis": { "title": "Crashes" } },
+            "color": { "value": "#1f77b4" },
+            "tooltip": [
+              { "field": "Year", "title": "Year" },
+              { "field": "Crashes", "title": "Number of Crashes" }
+            ]
+          }
+        }
+      ],
+      "config": {
+        "axis": { "labelFontSize": 11, "titleFontSize": 12 },
+        "view": { "stroke": null },
+        "legend": { "disable": true },
+        "font": "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+      }
+    };
+
+    // Render charts
+    vegaEmbed('#crash_map', specMap, {actions:{export:true,source:true,editor:true}})
       .catch(err=>{
         const el=document.getElementById('err');
         el.hidden=false;
         el.textContent="Embed error:\n"+err;
         console.error(err);
       });
+
+    vegaEmbed('#line_trends', specTrends, {actions:{export:true,source:true,editor:true}})
+      .catch(err=>console.error("Line chart error:", err));
   </script>
+</body>
+</html>
+
 </body>
 </html>
 
