@@ -20,7 +20,6 @@
     h2 { margin:0 0 8px 0; font-size:22px; }
     p { margin:8px 0; color:var(--muted); }
 
-    /* Infographic rectangles */
     .infographic-row {
       display:flex; justify-content:space-between; gap:12px;
       margin:20px 0 28px 0;
@@ -29,12 +28,6 @@
       flex:1; background:white; border:2px solid #ccc; border-radius:12px;
       text-align:center; padding:40px 0; font-weight:600; color:#666;
       box-shadow:0 2px 8px rgba(0,0,0,0.05);
-      transition:transform 0.2s, box-shadow 0.2s;
-    }
-    .info-box:hover {
-      transform:translateY(-3px);
-      box-shadow:0 6px 14px rgba(0,0,0,0.08);
-      color:#000;
     }
 
     .panel {
@@ -50,7 +43,6 @@
     <h1>Plane Crashes — Locations & Fatalities</h1>
     <p>Each circle marks a crash. Size and colour encode the number of fatalities. Use the year slider to filter.</p>
 
-    <!-- Three infographic rectangles -->
     <div class="infographic-row">
       <div class="info-box">Infographic 1</div>
       <div class="info-box">Infographic 2</div>
@@ -58,19 +50,18 @@
     </div>
   </header>
 
-  <!-- MAP (big and first) -->
+  <!-- MAP -->
   <div class="viz-wrap panel">
     <h2>Crash Locations & Fatalities (Map)</h2>
-    <div id="crash_map" aria-label="Map of plane crashes with fatalities"></div>
+    <div id="crash_map"></div>
     <div id="err" class="error" hidden></div>
     <div class="note">Tip: Drag the year slider to explore different time periods.</div>
   </div>
 
-  <!-- LINE GRAPH: Fatalities vs Crashes over time -->
+  <!-- LINE + SCATTER side-by-side -->
   <div class="viz-wrap panel">
-    <h2>Fatalities vs Crashes Over Time</h2>
-    <p class="note" style="margin-top:0;">Annual totals — independent y-axes for readability.</p>
-    <div id="line_trends" aria-label="Line chart showing annual total fatalities and number of crashes"></div>
+    <h2>Trends and Fatality Relationship</h2>
+    <div id="combo_viz"></div>
   </div>
 
   <div class="footer" style="margin-top:24px;">
@@ -78,12 +69,11 @@
   </div>
 
   <script>
-    /* ========= Map: crash locations, sized/colored by fatalities ========= */
+    /* ========= MAP ========= */
     const specMap = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "Plane crash locations with fatalities. Filter by year only.",
-      "width": 1000,
-      "height": 560,
+      "description": "Plane crash map",
+      "width": 1000, "height": 560,
       "projection": {"type": "equalEarth"},
       "params": [
         {
@@ -94,122 +84,107 @@
       ],
       "layer": [
         {
-          "data": {
-            "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
-            "format": {"type": "topojson", "feature": "countries"}
-          },
+          "data": {"url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
+                   "format": {"type": "topojson", "feature": "countries"}},
           "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
         },
         {
-          "data": { "url": "Plane_Crashes_Final.csv", "format": {"type": "csv"} },
+          "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
-            { "calculate": "year(timeParse(datum.Date, '%m/%d/%Y'))", "as": "Year" },
-            { "filter": "isValid(datum.Latitude) && isValid(datum.Longitude)" },
-            { "filter": "datum.Year == yearSel" }
+            {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+            {"filter":"isValid(datum.Latitude)&&isValid(datum.Longitude)"},
+            {"filter":"datum.Year==yearSel"}
           ],
-          "mark": {"type": "circle", "opacity": 0.7},
-          "encoding": {
-            "longitude": {"field": "Longitude", "type": "quantitative"},
-            "latitude": {"field": "Latitude", "type": "quantitative"},
-            "size": {
-              "field": "Fatalities", "type": "quantitative", "title": "Fatalities",
-              "scale": {"range": [12, 900]}, "legend": {"clipHeight": 22}
-            },
-            "color": {
-              "field": "Fatalities", "type": "quantitative", "title": "Fatalities",
-              "scale": {"scheme": "reds"}
-            },
-            "tooltip": [
-              {"field": "Date", "title": "Date"},
-              {"field": "Time", "title": "Time"},
-              {"field": "Location", "title": "Location"},
-              {"field": "Operator", "title": "Operator"},
-              {"field": "Flight #", "title": "Flight #"},
-              {"field": "Route", "title": "Route"},
-              {"field": "AC Type", "title": "Aircraft"},
-              {"field": "Registration", "title": "Registration"},
-              {"field": "Aboard", "title": "Aboard"},
-              {"field": "Fatalities", "title": "Fatalities"},
-              {"field": "Ground", "title": "Ground"},
-              {"field": "Summary", "title": "Summary"}
+          "mark":{"type":"circle","opacity":0.7},
+          "encoding":{
+            "longitude":{"field":"Longitude","type":"quantitative"},
+            "latitude":{"field":"Latitude","type":"quantitative"},
+            "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
+            "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
+            "tooltip":[
+              {"field":"Date","title":"Date"},
+              {"field":"Location","title":"Location"},
+              {"field":"Operator","title":"Operator"},
+              {"field":"Fatalities","title":"Fatalities"},
+              {"field":"Aboard","title":"Aboard"}
             ]
           }
         }
-      ],
-      "config": {
-        "legend": {"orient": "bottom", "titleFontSize": 12, "labelFontSize": 11},
-        "view": {"stroke": null},
-        "font": "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
-      }
+      ]
     };
 
-    /* ========= Line chart: fatalities (sum) vs crashes (count) ========= */
-    const specTrends = {
+    /* ========= COMBO: line (left) + scatter (right) ========= */
+    const specCombo = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "Annual totals: fatalities (sum) vs crashes (count).",
-      "width": 1000,
-      "height": 320,
-      "data": { "url": "Plane_Crashes_Final.csv", "format": {"type": "csv"} },
-      "transform": [
-        { "calculate": "year(timeParse(datum.Date, '%m/%d/%Y'))", "as": "Year" },
-        { "filter": "isValid(datum.Year)" }
-      ],
-      "resolve": { "scale": { "y": "independent" } },
-      "layer": [
+      "description": "Left: annual trends; Right: fatalities vs aboard scatter",
+      "hconcat": [
         {
+          "width": 500,
+          "height": 320,
+          "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
-            { "aggregate": [{"op": "sum", "field": "Fatalities", "as": "Fatalities"}], "groupby": ["Year"] }
+            {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+            {"filter":"isValid(datum.Year)"}
           ],
-          "mark": { "type": "line", "point": true },
-          "encoding": {
-            "x": { "field": "Year", "type": "quantitative", "title": "Year" },
-            "y": { "field": "Fatalities", "type": "quantitative", "axis": { "title": "Fatalities" } },
-            "color": { "value": "#d62728" },
-            "tooltip": [
-              { "field": "Year", "title": "Year" },
-              { "field": "Fatalities", "title": "Total Fatalities" }
-            ]
-          }
+          "resolve": {"scale":{"y":"independent"}},
+          "layer": [
+            {
+              "transform": [{"aggregate":[{"op":"sum","field":"Fatalities","as":"Fatalities"}],"groupby":["Year"]}],
+              "mark":{"type":"line","point":true,"color":"#d62728"},
+              "encoding":{
+                "x":{"field":"Year","type":"quantitative"},
+                "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities"},
+                "tooltip":[{"field":"Year"},{"field":"Fatalities"}]
+              }
+            },
+            {
+              "transform": [{"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Year"]}],
+              "mark":{"type":"line","point":true,"color":"#1f77b4"},
+              "encoding":{
+                "x":{"field":"Year","type":"quantitative"},
+                "y":{"field":"Crashes","type":"quantitative","title":"Crashes"},
+                "tooltip":[{"field":"Year"},{"field":"Crashes"}]
+              }
+            }
+          ]
         },
         {
+          "width": 500,
+          "height": 320,
+          "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
-            { "aggregate": [{"op": "count", "as": "Crashes"}], "groupby": ["Year"] }
+            {"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}
           ],
-          "mark": { "type": "line", "point": true },
-          "encoding": {
-            "x": { "field": "Year", "type": "quantitative", "title": "Year" },
-            "y": { "field": "Crashes", "type": "quantitative", "axis": { "title": "Crashes" } },
-            "color": { "value": "#1f77b4" },
-            "tooltip": [
-              { "field": "Year", "title": "Year" },
-              { "field": "Crashes", "title": "Number of Crashes" }
-            ]
-          }
+          "layer": [
+            {
+              "mark":{"type":"line","color":"#888","strokeDash":[4,4]},
+              "data":{"values":[{"x":0,"y":0},{"x":600,"y":600}]},
+              "encoding":{
+                "x":{"field":"x","type":"quantitative","title":"Aboard"},
+                "y":{"field":"y","type":"quantitative","title":"Fatalities"}
+              }
+            },
+            {
+              "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#e15759"},
+              "encoding":{
+                "x":{"field":"Aboard","type":"quantitative","title":"Aboard"},
+                "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities"},
+                "tooltip":[
+                  {"field":"Date","title":"Date"},
+                  {"field":"Operator","title":"Operator"},
+                  {"field":"Aboard","title":"Aboard"},
+                  {"field":"Fatalities","title":"Fatalities"}
+                ]
+              }
+            }
+          ]
         }
-      ],
-      "config": {
-        "axis": { "labelFontSize": 11, "titleFontSize": 12 },
-        "view": { "stroke": null },
-        "legend": { "disable": true },
-        "font": "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
-      }
+      ]
     };
 
-    // Render charts
-    vegaEmbed('#crash_map', specMap, {actions:{export:true,source:true,editor:true}})
-      .catch(err=>{
-        const el=document.getElementById('err');
-        el.hidden=false;
-        el.textContent="Embed error:\n"+err;
-        console.error(err);
-      });
-
-    vegaEmbed('#line_trends', specTrends, {actions:{export:true,source:true,editor:true}})
-      .catch(err=>console.error("Line chart error:", err));
+    /* ========= render charts ========= */
+    vegaEmbed('#crash_map', specMap, {actions:{export:true,source:true,editor:true}});
+    vegaEmbed('#combo_viz', specCombo, {actions:{export:true,source:true,editor:true}});
   </script>
 </body>
 </html>
-
-</body>
-</html>
-
