@@ -75,7 +75,7 @@
   </div>
 
   <script>
-    /* ========= MAP ========= */
+    /* ========= MAP (with robust lat/lon parsing) ========= */
     const specMap = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": 1000, "height": 560,
@@ -99,13 +99,33 @@
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
             {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-            {"filter":"isValid(datum.Latitude)&&isValid(datum.Longitude)"},
-            {"filter":"datum.Year==yearSel"}
+
+            // --- Clean & parse Latitude/Longitude ---
+
+            // Trim raw strings
+            {"calculate":"isValid(datum.Latitude) ? trim(datum.Latitude) : ''","as":"_latRaw"},
+            {"calculate":"isValid(datum.Longitude) ? trim(datum.Longitude) : ''","as":"_lonRaw"},
+
+            // Detect S/W for sign
+            {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
+            {"calculate":"test(/w/i, datum._lonRaw) ? -1 : 1","as":"_lonSign"},
+
+            // Strip everything except digits, dot, and minus; then cast to number
+            {"calculate":"toNumber(replace(datum._latRaw, /[^0-9.\\-]/g, ''))","as":"_latNum"},
+            {"calculate":"toNumber(replace(datum._lonRaw, /[^0-9.\\-]/g, ''))","as":"_lonNum"},
+
+            // Apply sign
+            {"calculate":"datum._latSign * datum._latNum","as":"lat"},
+            {"calculate":"datum._lonSign * datum._lonNum","as":"lon"},
+
+            // Keep valid rows and the selected year
+            {"filter":"isFinite(datum.lat) && isFinite(datum.lon)"},
+            {"filter":"datum.Year == yearSel"}
           ],
           "mark":{"type":"circle","opacity":0.7},
           "encoding":{
-            "longitude":{"field":"Longitude","type":"quantitative"},
-            "latitude":{"field":"Latitude","type":"quantitative"},
+            "longitude":{"field":"lon","type":"quantitative"},
+            "latitude":{"field":"lat","type":"quantitative"},
             "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
             "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
             "tooltip":[
@@ -113,7 +133,9 @@
               {"field":"Location","title":"Location"},
               {"field":"Operator","title":"Operator"},
               {"field":"Fatalities","title":"Fatalities"},
-              {"field":"Aboard","title":"Aboard"}
+              {"field":"Aboard","title":"Aboard"},
+              {"field":"lat","title":"Lat (parsed)"},
+              {"field":"lon","title":"Lon (parsed)"}
             ]
           }
         }
