@@ -152,7 +152,7 @@
   </div>
 
   <script>
-    /* ---------- MAP (improved tooltip titles) ---------- */
+    /* ---------- MAP (with clearer tooltip titles) ---------- */
     function mapSpec(widthPx){
       return {
         "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
@@ -201,7 +201,7 @@
       };
     }
 
-    /* ---------- LINE (tooltips added on both layers) ---------- */
+    /* ---------- LINE (tooltips on both series) ---------- */
     const specLine={
       "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
       "width":"container","height":320,
@@ -236,7 +236,7 @@
       ]
     };
 
-    /* ---------- SCATTER (adds SurvivalRate + richer tooltip) ---------- */
+    /* ---------- SCATTER (adds Survival Rate in tooltip) ---------- */
     const specScatter={
       "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
       "width":"container","height":320,
@@ -269,7 +269,7 @@
       ]
     };
 
-    /* ---------- HEATMAP (tooltip already solid) ---------- */
+    /* ---------- HEATMAP (tooltip with decade, month, crashes) ---------- */
     const specHeatmap={
       "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
       "width":"container","height":420,
@@ -297,7 +297,7 @@
       }
     };
 
-    /* ---------- OPERATORS (tooltip adds rank) ---------- */
+    /* ---------- OPERATORS (tooltip includes rank) ---------- */
     const specOperator={
       "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
       "width":"container","height":420,
