@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>Global Plane Crashes ✈︎ (1908 – 2023)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Vega libraries -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
@@ -25,17 +24,15 @@
     .info-box:hover { transform:translateY(-3px); box-shadow:0 6px 14px rgba(0,0,0,0.08); color:#000; }
 
     .panel { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
-      padding:16px; border:1px solid #eee; margin:16px auto; }
+      padding:16px; border:1px solid #eee; margin:16px auto; overflow:hidden; }
     .note { font-size:13px; color:var(--muted); margin-top:8px; }
     .controls { display:flex; gap:16px; align-items:center; justify-content:center; margin:8px 0 0 0; }
-    .error { color:#b00020; white-space:pre-wrap; margin-top:12px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Global Plane Crashes ✈︎ (1908 – 2023)</h1>
     <p>Visualising over a century of aviation incidents. Use the controls to correct coordinate quirks in different CSV versions.</p>
-
     <div class="infographic-row">
       <div class="info-box">Infographic 1</div>
       <div class="info-box">Infographic 2</div>
@@ -43,7 +40,6 @@
     </div>
   </header>
 
-  <!-- MAP -->
   <div class="viz-wrap panel">
     <h2>Crash Locations & Fatalities (Map)</h2>
     <div id="crash_map"></div>
@@ -51,33 +47,25 @@
       <label><input type="checkbox" id="swapBox" /> Swap latitude/longitude</label>
       <label><input type="checkbox" id="useSWBox" checked /> Use S/W letters to set sign</label>
     </div>
-    <div class="note">Tip: if points are in the wrong hemisphere/continent, try toggling one or both switches.</div>
   </div>
 
-  <!-- LINE + SCATTER -->
   <div class="viz-wrap panel">
     <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
     <div id="combo_viz"></div>
   </div>
 
-  <div class="footer" style="margin-top:24px;">
-    <p>Data: <code>Plane_Crashes_Final.csv</code> | Built with Vega-Lite</p>
-  </div>
-
   <script>
-    /* ================= MAP with parsing + toggles ================= */
+    // ============ MAP =============
     function makeMapSpec({ swapCoords=false, useSW=true } = {}) {
       return {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "width": 1000, "height": 560,
         "projection": {"type": "equalEarth"},
-        "params": [
-          {
-            "name": "yearSel",
-            "value": 1950,
-            "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Year: "}
-          }
-        ],
+        "params": [{
+          "name": "yearSel",
+          "value": 1950,
+          "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Year: "}
+        }],
         "layer": [
           {
             "data": {
@@ -90,24 +78,18 @@
             "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
             "transform": [
               {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-
-              {"calculate":"isValid(datum.Latitude) ? trim(datum.Latitude) : ''","as":"_latRaw"},
-              {"calculate":"isValid(datum.Longitude) ? trim(datum.Longitude) : ''","as":"_lonRaw"},
-
-              {"calculate": useSW ? "(test(/s/i, datum._latRaw) ? -1 : 1)" : "1", "as":"_latSign"},
-              {"calculate": useSW ? "(test(/w/i, datum._lonRaw) ? -1 : 1)" : "1", "as":"_lonSign"},
-
-              {"calculate":"toNumber(replace(datum._latRaw, /[^0-9.\\-]/g, ''))","as":"_latNum"},
-              {"calculate":"toNumber(replace(datum._lonRaw, /[^0-9.\\-]/g, ''))","as":"_lonNum"},
-
-              {"calculate":"datum._latSign * datum._latNum","as":"lat0"},
-              {"calculate":"datum._lonSign * datum._lonNum","as":"lon0"},
-
-              {"calculate": swapCoords ? "datum.lon0" : "datum.lat0", "as":"LAT"},
-              {"calculate": swapCoords ? "datum.lat0" : "datum.lon0", "as":"LON"},
-
-              {"filter":"isFinite(datum.LAT) && isFinite(datum.LON)"},
-              {"filter":"datum.Year == yearSel"}
+              {"calculate":"isValid(datum.Latitude)?trim(datum.Latitude):''","as":"_latRaw"},
+              {"calculate":"isValid(datum.Longitude)?trim(datum.Longitude):''","as":"_lonRaw"},
+              {"calculate": useSW ? "(test(/s/i, datum._latRaw)?-1:1)" : "1","as":"_latSign"},
+              {"calculate": useSW ? "(test(/w/i, datum._lonRaw)?-1:1)" : "1","as":"_lonSign"},
+              {"calculate":"toNumber(replace(datum._latRaw,/[^0-9.\\-]/g,''))","as":"_latNum"},
+              {"calculate":"toNumber(replace(datum._lonRaw,/[^0-9.\\-]/g,''))","as":"_lonNum"},
+              {"calculate":"datum._latSign*datum._latNum","as":"lat0"},
+              {"calculate":"datum._lonSign*datum._lonNum","as":"lon0"},
+              {"calculate": swapCoords?"datum.lon0":"datum.lat0","as":"LAT"},
+              {"calculate": swapCoords?"datum.lat0":"datum.lon0","as":"LON"},
+              {"filter":"isFinite(datum.LAT)&&isFinite(datum.LON)"},
+              {"filter":"datum.Year==yearSel"}
             ],
             "mark":{"type":"circle","opacity":0.7},
             "encoding":{
@@ -120,9 +102,7 @@
                 {"field":"Location","title":"Location"},
                 {"field":"Operator","title":"Operator"},
                 {"field":"Fatalities","title":"Fatalities"},
-                {"field":"Aboard","title":"Aboard"},
-                {"field":"LAT","title":"Lat (final)"},
-                {"field":"LON","title":"Lon (final)"}
+                {"field":"Aboard","title":"Aboard"}
               ]
             }
           }
@@ -130,12 +110,14 @@
       };
     }
 
-    /* ================= Combo: line (fatalities+crashes) + scatter ================= */
+    // ============ COMBO =============
     const specCombo = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "autosize": {"type": "fit", "contains": "padding"},
+      "config": {"view": {"continuousWidth": 500, "continuousHeight": 320}},
       "hconcat": [
         {
-          "width": 520,
+          "width": 500,
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
@@ -152,8 +134,7 @@
                 "y":{
                   "field":"Fatalities","type":"quantitative",
                   "axis":{"title":"Fatalities","labelColor":"black","titleColor":"black"}
-                },
-                "tooltip":[{"field":"Year"},{"field":"Fatalities"}]
+                }
               }
             },
             {
@@ -164,20 +145,19 @@
                 "y":{
                   "field":"Crashes","type":"quantitative",
                   "axis":{"title":"Crashes","orient":"right","labelColor":"black","titleColor":"black"}
-                },
-                "tooltip":[{"field":"Year"},{"field":"Crashes"}]
+                }
               }
             }
           ]
         },
         {
-          "width": 520,
+          "width": 470,  /* narrower to fit inside container */
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [{"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}],
           "layer": [
             {
-              "mark":{"type":"line","color":"#888","strokeDash":[4,4],"opacity":0.7},
+              "mark":{"type":"line","color":"#888","strokeDash":[4,4],"opacity":0.7,"clip":true},
               "data":{"values":[{"x":0,"y":0},{"x":600,"y":600}]},
               "encoding":{
                 "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,600]}},
@@ -185,7 +165,7 @@
               }
             },
             {
-              "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4","clip": true},
+              "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4","clip":true},
               "encoding":{
                 "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,600]}},
                 "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}},
@@ -211,7 +191,6 @@
     renderMap();
     vegaEmbed('#combo_viz', specCombo, {actions:{export:true,source:true,editor:true}});
 
-    // Toggle handlers
     document.getElementById('swapBox').addEventListener('change', (e)=>{
       swap = e.target.checked; renderMap();
     });
