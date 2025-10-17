@@ -55,7 +55,7 @@
   </div>
 
   <script>
-    // ============ MAP =============
+    // ============ MAP ============
     function makeMapSpec({ swapCoords=false, useSW=true } = {}) {
       return {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -110,7 +110,7 @@
       };
     }
 
-    // ============ COMBO =============
+    // ============ COMBO ============
     const specCombo = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "autosize": {"type": "fit", "contains": "padding"},
@@ -151,23 +151,23 @@
           ]
         },
         {
-          "width": 470,  /* narrower to fit inside container */
+          "width": 470,
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [{"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}],
           "layer": [
             {
               "mark":{"type":"line","color":"#888","strokeDash":[4,4],"opacity":0.7,"clip":true},
-              "data":{"values":[{"x":0,"y":0},{"x":600,"y":600}]},
+              "data":{"values":[{"x":0,"y":0},{"x":550,"y":550}]},
               "encoding":{
-                "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,600]}},
+                "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
                 "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}}
               }
             },
             {
               "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4","clip":true},
               "encoding":{
-                "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,600]}},
+                "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
                 "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}},
                 "tooltip":[
                   {"field":"Date","title":"Date"},
@@ -182,7 +182,7 @@
       ]
     };
 
-    // ===== Render everything =====
+    // ===== Render =====
     let swap = false, useSW = true;
     function renderMap() {
       const specMap = makeMapSpec({ swapCoords: swap, useSW });
