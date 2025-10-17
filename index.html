@@ -113,11 +113,15 @@
     // ============ COMBO ============
     const specCombo = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "autosize": {"type": "fit", "contains": "padding"},
-      "config": {"view": {"continuousWidth": 500, "continuousHeight": 320}},
+      "autosize": {"type": "fit-x", "contains": "padding"},
+      "spacing": 18,
+      "config": {
+        "view": {"continuousWidth": 460, "continuousHeight": 320, "stroke": "transparent"},
+        "axis": {"labelColor":"black", "titleColor":"black"}
+      },
       "hconcat": [
         {
-          "width": 500,
+          "width": 480,
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
@@ -125,6 +129,7 @@
             {"filter":"isValid(datum.Year)"}
           ],
           "resolve": {"scale":{"y":"independent"}},
+          "padding": {"right": 18},
           "layer": [
             {
               "transform":[{"aggregate":[{"op":"sum","field":"Fatalities","as":"Fatalities"}],"groupby":["Year"]}],
@@ -133,7 +138,7 @@
                 "x":{"field":"Year","type":"quantitative","title":"Year"},
                 "y":{
                   "field":"Fatalities","type":"quantitative",
-                  "axis":{"title":"Fatalities","labelColor":"black","titleColor":"black"}
+                  "axis":{"title":"Fatalities"}
                 }
               }
             },
@@ -144,31 +149,48 @@
                 "x":{"field":"Year","type":"quantitative"},
                 "y":{
                   "field":"Crashes","type":"quantitative",
-                  "axis":{"title":"Crashes","orient":"right","labelColor":"black","titleColor":"black"}
+                  "axis":{"title":"Crashes","orient":"right"}
                 }
               }
             }
           ]
         },
         {
-          "width": 470,
+          "width": 440,     /* a touch narrower so nothing overflows */
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [{"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}],
+          "padding": {"right": 20},  /* extra space for last tick/labels */
           "layer": [
             {
               "mark":{"type":"line","color":"#888","strokeDash":[4,4],"opacity":0.7,"clip":true},
               "data":{"values":[{"x":0,"y":0},{"x":550,"y":550}]},
               "encoding":{
-                "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
-                "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}}
+                "x":{
+                  "field":"x","type":"quantitative","title":"Aboard",
+                  "scale":{"domain":[0,550]},
+                  "axis":{"labelFlush":false,"labelBound":true,"tickCount":6}
+                },
+                "y":{
+                  "field":"y","type":"quantitative","title":"Fatalities",
+                  "scale":{"domain":[0,600]},
+                  "axis":{"tickCount":7}
+                }
               }
             },
             {
               "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4","clip":true},
               "encoding":{
-                "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
-                "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}},
+                "x":{
+                  "field":"Aboard","type":"quantitative","title":"Aboard",
+                  "scale":{"domain":[0,550]},
+                  "axis":{"labelFlush":false,"labelBound":true,"tickCount":6}
+                },
+                "y":{
+                  "field":"Fatalities","type":"quantitative","title":"Fatalities",
+                  "scale":{"domain":[0,600]},
+                  "axis":{"tickCount":7}
+                },
                 "tooltip":[
                   {"field":"Date","title":"Date"},
                   {"field":"Operator","title":"Operator"},
