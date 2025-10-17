@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
-    :root { --fg:#111; --muted:#444; --bg:#e6f2ff; }
+    :root { --fg:#111; --muted:#444; --bg:#e6f2ff; } /* light blue bg */
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 24px; color: var(--fg); background: var(--bg); line-height: 1.6;
@@ -18,18 +18,15 @@
     h1 { margin: 0 0 8px 0; font-size: 30px; }
     h2 { margin: 0 0 8px 0; font-size: 22px; }
     p { margin: 8px 0; color: var(--muted); }
-
     .panel {
       background: #fff; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.07);
       padding: 16px; border: 1px solid #eee; margin: 16px auto;
     }
-
     .charts {
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;
     }
     .chart { min-width: 0; width: 100%; }
     @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
-
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; display:none; }
   </style>
 </head>
@@ -222,7 +219,7 @@
       "config":{"view":{"stroke":"transparent"}}
     };
 
-    /* ---------- OPERATORS HISTOGRAM (Top 20) ---------- */
+    /* ---------- OPERATORS HISTOGRAM (Top 20) — fixed labelExpr ---------- */
     const specOperator = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container",
@@ -240,7 +237,7 @@
           "field":"Operator","type":"ordinal","title":"Operator","sort":"-x",
           "axis":{
             "labelLimit": 200,
-            "labelExpr": "length(datum.label) > 28 ? substr(datum.label,0,25)+'…' : datum.label"
+            "labelExpr": "length(datum.label) > 28 ? slice(datum.label,0,25)+'…' : datum.label"
           }
         },
         "x":{"field":"Crashes","type":"quantitative","title":"Crashes"},
