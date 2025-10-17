@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>Global Plane Crashes ✈︎ (1908 – 2023)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Vega libs -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
@@ -21,9 +20,8 @@
     .panel { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
       padding:16px; border:1px solid #eee; margin:16px auto; }
 
-    /* Two-column layout for the pair of charts (no overflow) */
     .charts { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }
-    .chart { min-width:0; }     /* critical to prevent SVG overflow */
+    .chart { min-width:0; width:100%; } /* <- makes container width measurable & prevents overflow */
     @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
 
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; display:none; }
@@ -42,7 +40,7 @@
     <div id="map_err" class="error"></div>
   </div>
 
-  <!-- LINE + SCATTER (rendered separately) -->
+  <!-- LINE + SCATTER -->
   <div class="viz-wrap panel">
     <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
     <div class="charts">
@@ -56,66 +54,63 @@
   </div>
 
   <script>
-    /* ================= MAP (responsive + robust lat/lon parsing + year slider) ================= */
-    const specMap = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "width": "container", "height": 560,
-      "projection": {"type": "equalEarth"},
-      "params": [
-        {
+    /* ---------- MAP SPEC (function so we can inject width) ---------- */
+    function mapSpec(widthPx) {
+      return {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "autosize": {"type": "fit", "contains": "padding"},
+        "width": widthPx,             // <- fixed to the container's actual width
+        "height": 560,
+        "projection": {"type": "equalEarth"},
+        "params": [{
           "name": "yearSel",
           "value": 1950,
           "bind": {"input": "range", "min": 1908, "max": 2023, "step": 1, "name": "Year: "}
-        }
-      ],
-      "layer": [
-        {
-          "data": {
-            "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
-            "format": {"type": "topojson", "feature": "countries"}
+        }],
+        "layer": [
+          {
+            "data": {
+              "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
+              "format": {"type": "topojson", "feature": "countries"}
+            },
+            "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
           },
-          "mark": {"type": "geoshape", "fill": "#e6e6e6", "stroke": "white"}
-        },
-        {
-          "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
-          "transform": [
-            {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-
-            /* Clean & parse latitude/longitude */
-            {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
-            {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
-            {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
-            {"calculate":"test(/w/i, datum._lonRaw) ? -1 : 1","as":"_lonSign"},
-            {"calculate":"toNumber(replace(datum._latRaw, /[^0-9.\\-]/g, ''))","as":"_latNum"},
-            {"calculate":"toNumber(replace(datum._lonRaw, /[^0-9.\\-]/g, ''))","as":"_lonNum"},
-            {"calculate":"datum._latSign * datum._latNum","as":"lat"},
-            {"calculate":"datum._lonSign * datum._lonNum","as":"lon"},
-
-            /* Show selected year only & keep valid rows */
-            {"filter":"datum.Year == yearSel"},
-            {"filter":"isFinite(datum.lat) && isFinite(datum.lon)"}
-          ],
-          "mark":{"type":"circle","opacity":0.7},
-          "encoding":{
-            "longitude":{"field":"lon","type":"quantitative"},
-            "latitude":{"field":"lat","type":"quantitative"},
-            "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
-            "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
-            "tooltip":[
-              {"field":"Date","title":"Date"},
-              {"field":"Location","title":"Location"},
-              {"field":"Operator","title":"Operator"},
-              {"field":"Fatalities","title":"Fatalities"},
-              {"field":"Aboard","title":"Aboard"},
-              {"field":"lat","title":"Lat (parsed)"},
-              {"field":"lon","title":"Lon (parsed)"}
-            ]
+          {
+            "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
+            "transform": [
+              {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+              /* robust lat/lon parsing so S/W letters work */
+              {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
+              {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
+              {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
+              {"calculate":"test(/w/i, datum._lonRaw) ? -1 : 1","as":"_lonSign"},
+              {"calculate":"toNumber(replace(datum._latRaw, /[^0-9.\\-]/g, ''))","as":"_latNum"},
+              {"calculate":"toNumber(replace(datum._lonRaw, /[^0-9.\\-]/g, ''))","as":"_lonNum"},
+              {"calculate":"datum._latSign * datum._latNum","as":"lat"},
+              {"calculate":"datum._lonSign * datum._lonNum","as":"lon"},
+              {"filter":"datum.Year == yearSel"},
+              {"filter":"isFinite(datum.lat) && isFinite(datum.lon)"}
+            ],
+            "mark":{"type":"circle","opacity":0.7},
+            "encoding":{
+              "longitude":{"field":"lon","type":"quantitative"},
+              "latitude":{"field":"lat","type":"quantitative"},
+              "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
+              "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
+              "tooltip":[
+                {"field":"Date","title":"Date"},
+                {"field":"Location","title":"Location"},
+                {"field":"Operator","title":"Operator"},
+                {"field":"Fatalities","title":"Fatalities"},
+                {"field":"Aboard","title":"Aboard"}
+              ]
+            }
           }
-        }
-      ]
-    };
+        ]
+      };
+    }
 
-    /* ================= LINE: Fatalities + Crash count ================= */
+    /* ---------- LINE: Fatalities + Crashes ---------- */
     const specLine = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 320,
@@ -146,7 +141,7 @@
       ]
     };
 
-    /* ================= SCATTER: Aboard vs Fatalities ================= */
+    /* ---------- SCATTER: Aboard vs Fatalities ---------- */
     const specScatter = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 320,
@@ -178,16 +173,23 @@
       ]
     };
 
-    /* ============== Render with error handling for the map ============== */
-    vegaEmbed('#crash_map', specMap, {actions:{export:true,source:true,editor:true}})
-      .catch(err => {
-        const el = document.getElementById('map_err');
-        el.style.display = 'block';
-        el.textContent = String(err);
-      });
+    /* ---------- Render (map width computed from container) ---------- */
+    function renderAll() {
+      const mapEl = document.getElementById('crash_map');
+      const mapWidth = Math.max(600, mapEl.clientWidth); // guard against 0/very small at first paint
+      vegaEmbed('#crash_map', mapSpec(mapWidth), {actions:{export:true,source:true,editor:true}})
+        .catch(err => {
+          const el = document.getElementById('map_err');
+          el.style.display = 'block';
+          el.textContent = String(err);
+        });
+      vegaEmbed('#line_chart', specLine, {actions:{export:true,source:true,editor:true}});
+      vegaEmbed('#scatter_chart', specScatter, {actions:{export:true,source:true,editor:true}});
+    }
 
-    vegaEmbed('#line_chart', specLine, {actions:{export:true,source:true,editor:true}});
-    vegaEmbed('#scatter_chart', specScatter, {actions:{export:true,source:true,editor:true}});
+    renderAll();
+    window.addEventListener('resize', () => renderAll());
   </script>
 </body>
 </html>
+
