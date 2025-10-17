@@ -18,6 +18,31 @@
     h1 { margin: 0 0 8px 0; font-size: 30px; }
     h2 { margin: 0 0 8px 0; font-size: 22px; }
     p { margin: 8px 0; color: var(--muted); }
+
+    .infographic-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 20px 0 28px 0;
+    }
+    .info-box {
+      flex: 1;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      text-align: center;
+      padding: 40px 0;
+      font-weight: 600;
+      color: #666;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .info-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      color: #000;
+    }
+
     .panel {
       background: #fff; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.07);
       padding: 16px; border: 1px solid #eee; margin: 16px auto;
@@ -27,13 +52,21 @@
     }
     .chart { min-width: 0; width: 100%; }
     @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; display:none; }
   </style>
 </head>
 <body>
   <header>
     <h1>Global Plane Crashes ✈︎ (1908 – 2023)</h1>
-    <p>Visualising over a century of aviation incidents.</p>
+    <p>Visualising over a century of aviation incidents worldwide.</p>
+
+    <!-- Infographic row -->
+    <div class="infographic-row">
+      <div class="info-box">Infographic 1</div>
+      <div class="info-box">Infographic 2</div>
+      <div class="info-box">Infographic 3</div>
+    </div>
   </header>
 
   <!-- MAP -->
@@ -52,7 +85,7 @@
     </div>
   </div>
 
-  <!-- HEATMAP + OPERATORS (side-by-side) -->
+  <!-- HEATMAP + OPERATORS -->
   <div class="viz-wrap panel">
     <h2>Crash Frequency by Month × Decade • Top Operators</h2>
     <div class="charts">
@@ -62,10 +95,6 @@
         <div id="operator_err" class="error"></div>
       </div>
     </div>
-    <p style="font-size:14px; color:#333; margin-top:10px;">
-      ✈️ <strong>Call to action:</strong> Compare decades with high seasonal intensity against operators with the most recorded crashes.
-      What patterns stand out — and where would you dig deeper?
-    </p>
   </div>
 
   <div class="footer" style="margin-top:24px;">
@@ -73,13 +102,12 @@
   </div>
 
   <script>
-    /* ---------- MAP (width computed from container for reliable sizing) ---------- */
+    /* ---- MAP ---- */
     function mapSpec(widthPx) {
       return {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "autosize": {"type": "fit", "contains": "padding"},
-        "width": widthPx,
-        "height": 560,
+        "width": widthPx, "height": 560,
         "projection": {"type": "equalEarth"},
         "params": [{
           "name": "yearSel",
@@ -98,7 +126,6 @@
             "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
             "transform": [
               {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-              /* robust lat/lon parsing */
               {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
               {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
               {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
@@ -129,11 +156,11 @@
       };
     }
 
-    /* ---------- LINE: Fatalities + Crashes ---------- */
+    /* ---- LINE ---- */
     const specLine = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 320,
-      "config": {"axis": {"labelColor":"black","titleColor":"black"}, "view":{"stroke":"transparent"}},
+      "config": {"axis": {"labelColor":"black","titleColor":"black"}},
       "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
       "transform": [
         {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
@@ -160,39 +187,30 @@
       ]
     };
 
-    /* ---------- SCATTER: Aboard vs Fatalities (extended to include outlier) ---------- */
+    /* ---- SCATTER ---- */
     const specScatter = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 320,
-      "config": {"axis": {"labelColor":"black","titleColor":"black"}, "view":{"stroke":"transparent"}},
+      "config": {"axis": {"labelColor":"black","titleColor":"black"}},
       "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
       "transform": [{"filter":"isValid(datum.Aboard) && isValid(datum.Fatalities)"}],
       "layer": [
-        {
-          "mark":{"type":"line","strokeDash":[4,4],"opacity":0.7},
-          "data":{"values":[{"x":0,"y":0},{"x":650,"y":650}]},
-          "encoding":{
-            "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
-            "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}}
-          }
-        },
-        {
-          "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4"},
-          "encoding":{
-            "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
-            "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}},
-            "tooltip":[
-              {"field":"Date","title":"Date"},
-              {"field":"Operator","title":"Operator"},
-              {"field":"Aboard","title":"Aboard"},
-              {"field":"Fatalities","title":"Fatalities"}
-            ]
-          }
-        }
+        {"mark":{"type":"line","strokeDash":[4,4],"opacity":0.7},
+         "data":{"values":[{"x":0,"y":0},{"x":650,"y":650}]},
+         "encoding":{
+           "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
+           "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}}
+         }},
+        {"mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4"},
+         "encoding":{
+           "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
+           "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}},
+           "tooltip":[{"field":"Date"},{"field":"Operator"},{"field":"Aboard"},{"field":"Fatalities"}]
+         }}
       ]
     };
 
-    /* ---------- HEATMAP: Count by Month × Decade ---------- */
+    /* ---- HEATMAP ---- */
     const specHeatmap = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 420,
@@ -202,67 +220,55 @@
         {"calculate":"month(timeParse(datum.Date,'%m/%d/%Y'))","as":"MonthIndex"},
         {"calculate":"floor(datum.Year/10)*10","as":"Decade"},
         {"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Decade","MonthIndex"]},
-        {"calculate":"toString(datum.Decade) + 's'","as":"DecadeLabel"},
-        {"calculate":"datum.MonthIndex==0?'Jan':datum.MonthIndex==1?'Feb':datum.MonthIndex==2?'Mar':datum.MonthIndex==3?'Apr':datum.MonthIndex==4?'May':datum.MonthIndex==5?'Jun':datum.MonthIndex==6?'Jul':datum.MonthIndex==7?'Aug':datum.MonthIndex==8?'Sep':datum.MonthIndex==9?'Oct':datum.MonthIndex==10?'Nov':'Dec'","as":"MonthName"}
+        {"calculate":"toString(datum.Decade)+'s'","as":"DecadeLabel"},
+        {"calculate":"['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][datum.MonthIndex]","as":"MonthName"}
       ],
       "mark":{"type":"rect"},
       "encoding":{
         "x":{"field":"MonthName","type":"ordinal","title":"Month",
              "sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
         "y":{"field":"DecadeLabel","type":"ordinal","title":"Decade",
-             "sort":{"field":"Decade","op":"min","order":"ascending"}},
+             "sort":{"field":"Decade","order":"ascending"}},
         "color":{"field":"Crashes","type":"quantitative","title":"Crashes","scale":{"scheme":"reds"}},
-        "tooltip":[{"field":"DecadeLabel","title":"Decade"},
-                   {"field":"MonthName","title":"Month"},
-                   {"field":"Crashes","title":"Crashes"}]
-      },
-      "config":{"view":{"stroke":"transparent"}}
+        "tooltip":[{"field":"DecadeLabel"},{"field":"MonthName"},{"field":"Crashes"}]
+      }
     };
 
-    /* ---------- OPERATORS HISTOGRAM (Top 20) — fixed labelExpr ---------- */
+    /* ---- OPERATORS ---- */
     const specOperator = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "width": "container",
-      "height": 420,
+      "width": "container", "height": 420,
       "data": {"url": "Plane_Crashes_Final.csv", "format": {"type": "csv"}},
       "transform": [
         {"filter":"isValid(datum.Operator)"},
-        {"aggregate":[{"op":"count","as":"Crashes"}], "groupby":["Operator"]},
-        {"window":[{"op":"rank","as":"rank"}], "sort":[{"field":"Crashes","order":"descending"}]},
+        {"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Operator"]},
+        {"window":[{"op":"rank","as":"rank"}],"sort":[{"field":"Crashes","order":"descending"}]},
         {"filter":"datum.rank <= 20"}
       ],
       "mark":{"type":"bar"},
       "encoding":{
         "y":{
           "field":"Operator","type":"ordinal","title":"Operator","sort":"-x",
-          "axis":{
-            "labelLimit": 200,
-            "labelExpr": "length(datum.label) > 28 ? slice(datum.label,0,25)+'…' : datum.label"
-          }
+          "axis":{"labelLimit":200,
+                  "labelExpr":"length(datum.label)>28?slice(datum.label,0,25)+'…':datum.label"}
         },
         "x":{"field":"Crashes","type":"quantitative","title":"Crashes"},
-        "tooltip":[{"field":"Operator","title":"Operator"},{"field":"Crashes","title":"Crashes"}],
-        "color":{"value":"#1f77b4"}
-      },
-      "config":{"view":{"stroke":"transparent"}}
+        "color":{"value":"#1f77b4"},
+        "tooltip":[{"field":"Operator"},{"field":"Crashes"}]
+      }
     };
 
-    /* ---------- Render (map width computed from container) ---------- */
-    function renderAll() {
-      const mapEl = document.getElementById('crash_map');
-      const mapWidth = Math.max(600, mapEl.clientWidth);
-      vegaEmbed('#crash_map', mapSpec(mapWidth), {actions:{export:true,source:true,editor:true}})
-        .catch(err => { const el = document.getElementById('map_err'); el.style.display='block'; el.textContent=String(err); });
-
-      vegaEmbed('#line_chart', specLine, {actions:{export:true,source:true,editor:true}});
-      vegaEmbed('#scatter_chart', specScatter, {actions:{export:true,source:true,editor:true}});
-      vegaEmbed('#heatmap', specHeatmap, {actions:{export:true,source:true,editor:true}});
-      vegaEmbed('#operator_hist', specOperator, {actions:{export:true,source:true,editor:true}})
-        .catch(err => { const el = document.getElementById('operator_err'); el.style.display='block'; el.textContent=String(err); });
+    /* ---- RENDER ---- */
+    function renderAll(){
+      const w=document.getElementById('crash_map').clientWidth||800;
+      vegaEmbed('#crash_map',mapSpec(w));
+      vegaEmbed('#line_chart',specLine);
+      vegaEmbed('#scatter_chart',specScatter);
+      vegaEmbed('#heatmap',specHeatmap);
+      vegaEmbed('#operator_hist',specOperator);
     }
-
     renderAll();
-    window.addEventListener('resize', renderAll);
+    window.addEventListener('resize',renderAll);
   </script>
 </body>
 </html>
