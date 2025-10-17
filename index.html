@@ -85,6 +85,7 @@
             "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
             "transform": [
               {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+              /* robust lat/lon parsing so S/W letters work */
               {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
               {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
               {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
@@ -146,7 +147,7 @@
       ]
     };
 
-    /* ---------- SCATTER: Aboard vs Fatalities (x=0..550) ---------- */
+    /* ---------- SCATTER: Aboard vs Fatalities (extended to include outlier) ---------- */
     const specScatter = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": "container", "height": 320,
@@ -156,17 +157,17 @@
       "layer": [
         {
           "mark":{"type":"line","strokeDash":[4,4],"opacity":0.7},
-          "data":{"values":[{"x":0,"y":0},{"x":550,"y":550}]},
+          "data":{"values":[{"x":0,"y":0},{"x":650,"y":650}]},
           "encoding":{
-            "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
-            "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}}
+            "x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
+            "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}}
           }
         },
         {
           "mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4"},
           "encoding":{
-            "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,550]}},
-            "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,600]}},
+            "x":{"field":"Aboard","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
+            "y":{"field":"Fatalities","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}},
             "tooltip":[
               {"field":"Date","title":"Date"},
               {"field":"Operator","title":"Operator"},
@@ -185,31 +186,23 @@
       "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
       "transform": [
         {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-        {"calculate":"month(timeParse(datum.Date,'%m/%d/%Y'))","as":"MonthIndex"},   /* 0..11 */
+        {"calculate":"month(timeParse(datum.Date,'%m/%d/%Y'))","as":"MonthIndex"},
         {"calculate":"floor(datum.Year/10)*10","as":"Decade"},
-        /* aggregate crashes per (Decade, MonthIndex) */
         {"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Decade","MonthIndex"]},
-        /* Pretty labels */
         {"calculate":"toString(datum.Decade) + 's'","as":"DecadeLabel"},
         {"calculate":"datum.MonthIndex==0?'Jan':datum.MonthIndex==1?'Feb':datum.MonthIndex==2?'Mar':datum.MonthIndex==3?'Apr':datum.MonthIndex==4?'May':datum.MonthIndex==5?'Jun':datum.MonthIndex==6?'Jul':datum.MonthIndex==7?'Aug':datum.MonthIndex==8?'Sep':datum.MonthIndex==9?'Oct':datum.MonthIndex==10?'Nov':'Dec'","as":"MonthName"}
       ],
       "mark":{"type":"rect"},
       "encoding":{
         "x":{
-          "field":"MonthName","type":"ordinal",
-          "title":"Month",
+          "field":"MonthName","type":"ordinal","title":"Month",
           "sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
         },
         "y":{
-          "field":"DecadeLabel","type":"ordinal",
-          "title":"Decade",
+          "field":"DecadeLabel","type":"ordinal","title":"Decade",
           "sort":{"field":"Decade","op":"min","order":"ascending"}
         },
-        "color":{
-          "field":"Crashes","type":"quantitative",
-          "title":"Crashes",
-          "scale":{"scheme":"reds"}
-        },
+        "color":{"field":"Crashes","type":"quantitative","title":"Crashes","scale":{"scheme":"reds"}},
         "tooltip":[
           {"field":"DecadeLabel","title":"Decade"},
           {"field":"MonthName","title":"Month"},
@@ -219,7 +212,7 @@
       "config":{"view":{"stroke":"transparent"}}
     };
 
-    /* ---------- Render all ---------- */
+    /* ---------- Render (map width computed from container) ---------- */
     function renderAll() {
       const mapEl = document.getElementById('crash_map');
       const mapWidth = Math.max(600, mapEl.clientWidth);
