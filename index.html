@@ -11,7 +11,7 @@
     :root {
       --fg: #111;
       --muted: #444;
-      --bg: #e6f2ff; /* light blue background */
+      --bg: #e6f2ff; /* light blue */
     }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -21,48 +21,32 @@
       background: var(--bg);
       line-height: 1.6;
     }
-    header, .viz-wrap, .footer {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    header {
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 8px 0;
-      font-size: 30px;
-    }
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 22px;
-    }
-    p {
-      margin: 8px 0;
-      color: var(--muted);
-    }
+    header, .viz-wrap, .footer { max-width: 1100px; margin: 0 auto; }
+    header { margin-bottom: 16px; text-align: center; }
+    h1 { margin: 0 0 8px 0; font-size: 30px; }
+    h2 { margin: 0 0 8px 0; font-size: 22px; }
+    p { margin: 8px 0; color: var(--muted); }
+
     .panel {
-      background: #ffffff;
+      background: #fff;
       border-radius: 14px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+      box-shadow: 0 4px 18px rgba(0,0,0,.07);
       padding: 16px;
       border: 1px solid #eee;
       margin: 16px auto;
     }
+
+    /* Flexible grid for side-by-side charts (wraps on small screens) */
     .charts {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
     }
-    .chart {
-      min-width: 0;
-      width: 100%;
-    }
+    .chart { min-width: 0; width: 100%; }
     @media (max-width: 900px) {
-      .charts {
-        grid-template-columns: 1fr;
-      }
+      .charts { grid-template-columns: 1fr; }
     }
+
     .error {
       color: #b00020;
       white-space: pre-wrap;
@@ -93,10 +77,17 @@
     </div>
   </div>
 
-  <!-- HEATMAP -->
+  <!-- HEATMAP + OPERATORS (side-by-side) -->
   <div class="viz-wrap panel">
-    <h2>Crash Frequency Heatmap (Month × Decade)</h2>
-    <div id="heatmap" class="chart"></div>
+    <h2>Crash Frequency by Month × Decade • Top Operators</h2>
+    <div class="charts">
+      <div id="heatmap" class="chart"></div>
+      <div id="operator_hist" class="chart"></div>
+    </div>
+    <p style="font-size:14px; color:#333; margin-top:10px;">
+      ✈️ <strong>Call to action:</strong> Compare decades with high seasonal intensity against operators with the most recorded crashes. 
+      What patterns stand out—and where would you dig deeper?
+    </p>
   </div>
 
   <div class="footer" style="margin-top:24px;">
@@ -129,6 +120,7 @@
             "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
             "transform": [
               {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+              /* robust lat/lon parsing so S/W letters work */
               {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
               {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
               {"calculate":"test(/s/i, datum._latRaw) ? -1 : 1","as":"_latSign"},
@@ -255,6 +247,42 @@
       "config":{"view":{"stroke":"transparent"}}
     };
 
+    /* ---------- OPERATORS HISTOGRAM (Top 20) ---------- */
+    const specOperator = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": "container",
+      "height": 420,
+      "data": {"url": "Plane_Crashes_Final.csv", "format": {"type": "csv"}},
+      "transform": [
+        {"filter":"isValid(datum.Operator)"},
+        {"aggregate":[{"op":"count","as":"Crashes"}], "groupby":["Operator"]},
+        /* rank by number of crashes */
+        {"window":[{"op":"rank","as":"rank"}], "sort":[{"field":"Crashes","order":"descending"}]},
+        {"filter":"datum.rank <= 20"},
+        {"sort":[{"field":"Crashes","order":"descending"}]}
+      ],
+      "mark":{"type":"bar"},
+      "encoding":{
+        "y":{
+          "field":"Operator", "type":"ordinal", "title":"Operator",
+          "sort":"-x",
+          "axis":{
+            "labelLimit": 180,
+            "labelExpr": "length(datum.label) > 28 ? substr(datum.label,0,25)+'…' : datum.label"
+          }
+        },
+        "x":{
+          "field":"Crashes", "type":"quantitative", "title":"Crashes"
+        },
+        "tooltip":[
+          {"field":"Operator","title":"Operator"},
+          {"field":"Crashes","title":"Crashes"}
+        ],
+        "color":{"value":"#1f77b4"}
+      },
+      "config":{"view":{"stroke":"transparent"}}
+    };
+
     /* ---------- Render (map width computed from container) ---------- */
     function renderAll() {
       const mapEl = document.getElementById('crash_map');
@@ -265,6 +293,7 @@
       vegaEmbed('#line_chart', specLine, {actions:{export:true,source:true,editor:true}});
       vegaEmbed('#scatter_chart', specScatter, {actions:{export:true,source:true,editor:true}});
       vegaEmbed('#heatmap', specHeatmap, {actions:{export:true,source:true,editor:true}});
+      vegaEmbed('#operator_hist', specOperator, {actions:{export:true,source:true,editor:true}});
     }
 
     renderAll();
