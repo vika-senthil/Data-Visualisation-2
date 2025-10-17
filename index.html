@@ -24,7 +24,7 @@
     .info-box:hover { transform:translateY(-3px); box-shadow:0 6px 14px rgba(0,0,0,0.08); color:#000; }
 
     .panel { background:#fff; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.07);
-      padding:16px; border:1px solid #eee; margin:16px auto; overflow:hidden; }
+      padding:16px; border:1px solid #eee; margin:16px auto; /* removed overflow:hidden */ }
     .note { font-size:13px; color:var(--muted); margin-top:8px; }
     .controls { display:flex; gap:16px; align-items:center; justify-content:center; margin:8px 0 0 0; }
   </style>
@@ -40,6 +40,7 @@
     </div>
   </header>
 
+  <!-- MAP -->
   <div class="viz-wrap panel">
     <h2>Crash Locations & Fatalities (Map)</h2>
     <div id="crash_map"></div>
@@ -49,13 +50,18 @@
     </div>
   </div>
 
+  <!-- LINE + SCATTER -->
   <div class="viz-wrap panel">
     <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
     <div id="combo_viz"></div>
   </div>
 
+  <div class="footer" style="margin-top:24px;">
+    <p>Data: <code>Plane_Crashes_Final.csv</code> | Built with Vega-Lite</p>
+  </div>
+
   <script>
-    // ============ MAP ============
+    /* ================= MAP (same robust parsing + toggles) ================= */
     function makeMapSpec({ swapCoords=false, useSW=true } = {}) {
       return {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -110,18 +116,17 @@
       };
     }
 
-    // ============ COMBO ============
+    /* ================= Combo: line (fatalities+crashes) + scatter ================= */
     const specCombo = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "autosize": {"type": "fit-x", "contains": "padding"},
-      "spacing": 18,
       "config": {
-        "view": {"continuousWidth": 460, "continuousHeight": 320, "stroke": "transparent"},
+        "view": {"continuousWidth": 520, "continuousHeight": 320, "stroke": "transparent"},
         "axis": {"labelColor":"black", "titleColor":"black"}
       },
+      "spacing": 18,
       "hconcat": [
         {
-          "width": 480,
+          "width": 520,
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [
@@ -129,17 +134,13 @@
             {"filter":"isValid(datum.Year)"}
           ],
           "resolve": {"scale":{"y":"independent"}},
-          "padding": {"right": 18},
           "layer": [
             {
               "transform":[{"aggregate":[{"op":"sum","field":"Fatalities","as":"Fatalities"}],"groupby":["Year"]}],
               "mark":{"type":"line","point":true,"strokeWidth":2,"color":"#d62728"},
               "encoding":{
                 "x":{"field":"Year","type":"quantitative","title":"Year"},
-                "y":{
-                  "field":"Fatalities","type":"quantitative",
-                  "axis":{"title":"Fatalities"}
-                }
+                "y":{"field":"Fatalities","type":"quantitative","axis":{"title":"Fatalities"}}
               }
             },
             {
@@ -147,20 +148,17 @@
               "mark":{"type":"line","point":true,"strokeWidth":2,"color":"#1f77b4"},
               "encoding":{
                 "x":{"field":"Year","type":"quantitative"},
-                "y":{
-                  "field":"Crashes","type":"quantitative",
-                  "axis":{"title":"Crashes","orient":"right"}
-                }
+                "y":{"field":"Crashes","type":"quantitative","axis":{"title":"Crashes","orient":"right"}}
               }
             }
           ]
         },
         {
-          "width": 440,     /* a touch narrower so nothing overflows */
+          "width": 520,
           "height": 320,
           "data": {"url": "Plane_Crashes_Final.csv","format":{"type":"csv"}},
           "transform": [{"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}],
-          "padding": {"right": 20},  /* extra space for last tick/labels */
+          "padding": {"right": 28},   /* reserve space for last tick/labels */
           "layer": [
             {
               "mark":{"type":"line","color":"#888","strokeDash":[4,4],"opacity":0.7,"clip":true},
@@ -168,8 +166,8 @@
               "encoding":{
                 "x":{
                   "field":"x","type":"quantitative","title":"Aboard",
-                  "scale":{"domain":[0,550]},
-                  "axis":{"labelFlush":false,"labelBound":true,"tickCount":6}
+                  "scale":{"domain":[0,550],"nice":false,"zero":true},
+                  "axis":{"labelBound":true,"tickCount":6}
                 },
                 "y":{
                   "field":"y","type":"quantitative","title":"Fatalities",
@@ -183,8 +181,8 @@
               "encoding":{
                 "x":{
                   "field":"Aboard","type":"quantitative","title":"Aboard",
-                  "scale":{"domain":[0,550]},
-                  "axis":{"labelFlush":false,"labelBound":true,"tickCount":6}
+                  "scale":{"domain":[0,550],"nice":false,"zero":true},
+                  "axis":{"labelBound":true,"tickCount":6}
                 },
                 "y":{
                   "field":"Fatalities","type":"quantitative","title":"Fatalities",
@@ -204,7 +202,7 @@
       ]
     };
 
-    // ===== Render =====
+    // ===== Render all =====
     let swap = false, useSW = true;
     function renderMap() {
       const specMap = makeMapSpec({ swapCoords: swap, useSW });
