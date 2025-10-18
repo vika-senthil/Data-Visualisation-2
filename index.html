@@ -21,8 +21,15 @@
       font-size:48px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
       color:#0a2740; text-shadow:1px 2px 6px rgba(0,0,0,0.15);
     }
-    h2 { margin:0 0 12px 0; font-size:22px; }
+    h2 { margin:0 0 8px 0; font-size:22px; }
     p { margin:8px 0; color:var(--muted); }
+
+    /* small explanatory notes */
+    .note {
+      margin-top:2px;
+      font-size:14px;
+      color:#556;
+    }
 
     /* --- Flip Cards --- */
     .infographic-row {
@@ -133,6 +140,7 @@
   <!-- MAP -->
   <div class="viz-wrap panel">
     <h2>Crash Locations & Fatalities (Map)</h2>
+    <p class="note">Use the year slider to explore any single year. Larger and darker circles indicate higher fatalities; clusters follow busy corridors and reporting hubs.</p>
     <div id="crash_map" class="chart"></div>
     <div id="map_err" class="error"></div>
   </div>
@@ -140,6 +148,7 @@
   <!-- LINE + SCATTER -->
   <div class="viz-wrap panel">
     <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
+    <p class="note">Left: yearly totals show periods of higher fatalities and crash counts mid-20th century, with declines in recent decades. Right: each point is a crash; the dashed line is where fatalities would equal people aboard.</p>
     <div class="charts">
       <div id="line_chart" class="chart"></div>
       <div id="scatter_chart" class="chart"></div>
@@ -149,6 +158,7 @@
   <!-- HEATMAP + OPERATORS -->
   <div class="viz-wrap panel">
     <h2>Crash Frequency by Month × Decade • Top Operators</h2>
+    <p class="note">Left: a heatmap of seasonality across decades (subtle monthly patterns are visible in some periods). Right: a small number of operators account for many recorded crashes historically.</p>
     <div class="charts">
       <div id="heatmap" class="chart"></div>
       <div>
