@@ -75,7 +75,7 @@
   <div class="infographic-row">
     <div class="flip-card">
       <div class="flip-inner">
-        <div class="flip-front"><span>✈️</span>Tenerife Airport Disaster<small>(Hover me)</small></div>
+        <div class="flip-front"><span>✈️</span>Tenerife Airport Disaster<small>(Hover over me)</small></div>
         <div class="flip-back">
           <div><strong>Year:</strong> 1977<br><strong>Operator:</strong> KLM & Pan Am<br><strong>Aboard:</strong> 644<br><strong>Deaths:</strong> 583<br><em>Two Boeing 747s collided in fog — the deadliest crash in history.</em></div>
         </div>
@@ -83,7 +83,7 @@
     </div>
     <div class="flip-card">
       <div class="flip-inner">
-        <div class="flip-front"><span>🛫</span>Japan Airlines Flight 123<small>(Hover me)</small></div>
+        <div class="flip-front"><span>🛫</span>Japan Airlines Flight 123<small>(Hover over me)</small></div>
         <div class="flip-back">
           <div><strong>Year:</strong> 1985<br><strong>Operator:</strong> Japan Airlines<br><strong>Aboard:</strong> 524<br><strong>Deaths:</strong> 520<br><em>Decompression led to loss of control and crash into mountainous terrain.</em></div>
         </div>
@@ -91,7 +91,7 @@
     </div>
     <div class="flip-card">
       <div class="flip-inner">
-        <div class="flip-front"><span>🛩️</span>Charkhi Dadri Collision<small>(Hover me)</small></div>
+        <div class="flip-front"><span>🛩️</span>Charkhi Dadri Collision<small>(Hover over me)</small></div>
         <div class="flip-back">
           <div><strong>Year:</strong> 1996<br><strong>Operator:</strong> Saudi Arabian & Kazakhstan Airlines<br><strong>Aboard:</strong> 349<br><strong>Deaths:</strong> 349<br><em>Two jets collided near New Delhi — one of the worst mid-air disasters.</em></div>
         </div>
@@ -114,10 +114,10 @@
     <h2>Key Insights at a Glance</h2>
     <div class="callout">
       <ul style="margin:0 0 0 18px;padding:0">
-        <li><strong>Concentration & Reporting:</strong> Records cluster along high-traffic routes and better-reporting regions.</li>
-        <li><strong>Safety Improvements:</strong> Fatalities and crash counts decline markedly post-1980 s.</li>
+        <li><strong>Concentration & Reporting:</strong> Records cluster along high traffic routes and various regions.</li>
+        <li><strong>Safety Improvements:</strong> Fatalities and crash counts decline markedly post 1980s.</li>
         <li><strong>Severity Envelope:</strong> Most events fall well below the “all aboard” line — catastrophic events are rare.</li>
-        <li><strong>Seasonality & Operators:</strong> Subtle monthly trends emerge; a few operators dominate historic totals.</li>
+        <li><strong>Seasonality & Operators:</strong> Subtle monthly trends emerge and a few operators dominate historic totals.</li>
       </ul>
     </div>
   </div>
@@ -128,7 +128,6 @@
   <h2>Crash Locations & Fatalities (Map)</h2>
   <p class="note">Use the year slider to explore. Larger / darker circles = more fatalities; clusters align with major flight corridors.</p>
   <div id="crash_map" class="chart"></div><div id="map_err" class="error"></div>
-  <div class="callout"><strong>Annotation:</strong> Try 1977 (Tenerife) and 1985 (JAL 123) for major events.</div>
 </div>
 
 <!-- LINE + SCATTER -->
@@ -136,7 +135,6 @@
   <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
   <p class="note">Left: yearly totals peak mid-20th century then fall. Right: each point = one crash; dashed line = fatalities = aboard.</p>
   <div class="charts"><div id="line_chart" class="chart"></div><div id="scatter_chart" class="chart"></div></div>
-  <div class="callout"><strong>Interpretation:</strong> The widening gap between red (fatalities) and blue (crashes) lines suggests improved survivability.</div>
 </div>
 
 <!-- HEATMAP + OPERATORS -->
@@ -155,9 +153,9 @@
   <p>Data: <a href="Plane_Crashes_Final.csv">Plane_Crashes_Final.csv</a> | Built with Vega-Lite</p>
   <p class="meta">
     Author: <strong>Rithvika Senthil</strong> · Last updated: <span id="lastUpdated"></span><br>
-    Methods: Date parsed + coordinates normalised; aggregated by year/decade; top-20 operators.<br>
-    Source: <a href="Plane_Crashes_Final.csv">Local compiled CSV</a> (Replace with public dataset link).<br>
-    <small>License: CC BY-4.0 · Contact: your.email@example.com</small>
+    Methods: Date parsed + coordinates normalised. Aggregated by year/decade + top-20 operators.<br>
+    Source: <a href="Plane_Crashes_Final.csv">Local compiled CSV</a> (https://www.kaggle.com/datasets/nayansubedi1/airplane-crashes-and-fatalities-upto-2023).<br>
+  
   </p>
 </div>
 
