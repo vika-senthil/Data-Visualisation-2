@@ -24,7 +24,6 @@
     h2 { margin:0 0 8px 0; font-size:22px; }
     p { margin:8px 0; color:var(--muted); }
 
-    /* notes + callouts */
     .note{margin-top:2px;font-size:14px;color:#556}
     .callout{
       margin-top:10px; padding:10px 12px; background:#f2f7ff; border:1px solid #cfe1ff;
@@ -32,7 +31,6 @@
     }
     .callout strong{color:#0a2740}
 
-    /* --- Flip Cards --- */
     .infographic-row { display:flex; justify-content:space-between; gap:16px; margin:28px 0 32px 0; }
     .flip-card { width:33%; height:220px; perspective:1000px; }
     .flip-inner { position:relative; width:100%; height:100%; transition:transform .8s; transform-style:preserve-3d; }
@@ -63,213 +61,238 @@
 
     .error { color:#b00020; white-space:pre-wrap; margin-top:12px; display:none; }
 
-    /* footer meta */
     .meta { margin-top:6px; font-size:14px; color:#556; }
     .meta a { color:#0a2740; text-decoration:underline; }
     .meta small{display:block;color:#667}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Global Plane Crashes ✈︎ (1908 – 2023)</h1>
-    <p>Visualising over a century of aviation incidents worldwide.</p>
+<header>
+  <h1>Global Plane Crashes ✈︎ (1908 – 2023)</h1>
+  <p>Visualising over a century of aviation incidents worldwide.</p>
 
-    <!-- Flip Cards moved ABOVE How to Read -->
-    <div class="infographic-row">
-      <div class="flip-card">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <span>✈️</span>
-            Tenerife Airport Disaster
-            <small>(Hover me)</small>
-          </div>
-          <div class="flip-back">
-            <div>
-              <strong>Year:</strong> 1977<br>
-              <strong>Operator:</strong> KLM & Pan Am<br>
-              <strong>Aboard:</strong> 644<br>
-              <strong>Deaths:</strong> 583<br>
-              <em>Two Boeing 747s collided in fog at Tenerife — the deadliest crash in history.</em>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="flip-card">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <span>🛫</span>
-            Japan Airlines Flight 123
-            <small>(Hover me)</small>
-          </div>
-          <div class="flip-back">
-            <div>
-              <strong>Year:</strong> 1985<br>
-              <strong>Operator:</strong> Japan Airlines<br>
-              <strong>Aboard:</strong> 524<br>
-              <strong>Deaths:</strong> 520<br>
-              <em>Decompression led to loss of control and crash into mountainous terrain.</em>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="flip-card">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <span>🛩️</span>
-            Charkhi Dadri Collision
-            <small>(Hover me)</small>
-          </div>
-          <div class="flip-back">
-            <div>
-              <strong>Year:</strong> 1996<br>
-              <strong>Operator:</strong> Saudi Arabian & Kazakhstan Airlines<br>
-              <strong>Aboard:</strong> 349<br>
-              <strong>Deaths:</strong> 349<br>
-              <em>Two jets collided near New Delhi — one of the worst mid-air disasters.</em>
-            </div>
-          </div>
+  <!-- Flip Cards ABOVE How to Read -->
+  <div class="infographic-row">
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front"><span>✈️</span>Tenerife Airport Disaster<small>(Hover me)</small></div>
+        <div class="flip-back">
+          <div><strong>Year:</strong> 1977<br><strong>Operator:</strong> KLM & Pan Am<br><strong>Aboard:</strong> 644<br><strong>Deaths:</strong> 583<br><em>Two Boeing 747s collided in fog — the deadliest crash in history.</em></div>
         </div>
       </div>
     </div>
-
-    <!-- Story set-up: how to read -->
-    <div class="panel" style="text-align:left">
-      <h2>How to Read this Dashboard</h2>
-      <p class="note">
-        1) Start with the <strong>map</strong> and move the year slider to see where and when events were recorded.<br>
-        2) Compare long-term <strong>fatalities vs. crash counts</strong> over time (left), then examine <strong>severity</strong> of individual crashes (right).<br>
-        3) Explore <strong>seasonality by decades</strong> and which <strong>operators</strong> account for the most recorded crashes.
-      </p>
-    </div>
-
-    <!-- Key insights -->
-    <div class="panel" style="text-align:left">
-      <h2>Key Insights at a Glance</h2>
-      <div class="callout">
-        <ul style="margin:0 0 0 18px;padding:0">
-          <li><strong>Concentration & Reporting:</strong> Many records align with heavily trafficked routes and regions with stronger reporting.</li>
-          <li><strong>Safety Improvements:</strong> Long-term trends suggest fewer fatalities and crashes in recent decades compared with mid-20th century peaks.</li>
-          <li><strong>Severity Envelope:</strong> Most events fall well below the “all aboard” line; mass-fatality events are rare but impactful.</li>
-          <li><strong>Seasonality & Operators:</strong> Subtle month-by-decade patterns appear, and a small number of operators account for many events historically.</li>
-        </ul>
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front"><span>🛫</span>Japan Airlines Flight 123<small>(Hover me)</small></div>
+        <div class="flip-back">
+          <div><strong>Year:</strong> 1985<br><strong>Operator:</strong> Japan Airlines<br><strong>Aboard:</strong> 524<br><strong>Deaths:</strong> 520<br><em>Decompression led to loss of control and crash into mountainous terrain.</em></div>
+        </div>
       </div>
     </div>
-  </header>
-
-  <!-- MAP -->
-  <div class="viz-wrap panel">
-    <h2>Crash Locations & Fatalities (Map)</h2>
-    <p class="note">Use the year slider to explore any single year. Larger and darker circles indicate higher fatalities; clusters follow busy corridors and reporting hubs.</p>
-    <div id="crash_map" class="chart"></div>
-    <div id="map_err" class="error"></div>
-    <div class="callout"><strong>Annotation:</strong> Try <em>1977</em> (Tenerife) and <em>1985</em> (JAL123) to see two historically severe events.</div>
-  </div>
-
-  <!-- LINE + SCATTER -->
-  <div class="viz-wrap panel">
-    <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
-    <p class="note">Left: yearly totals show periods of higher fatalities and crash counts mid-20th century, with declines in recent decades. Right: each point is a crash; the dashed line marks the theoretical upper bound (fatalities = aboard).</p>
-    <div class="charts">
-      <div id="line_chart" class="chart"></div>
-      <div id="scatter_chart" class="chart"></div>
-    </div>
-    <div class="callout"><strong>Interpretation:</strong> Divergence between the red (fatalities) and blue (crash count) lines suggests changes in <em>severity per crash</em> over time.</div>
-  </div>
-
-  <!-- HEATMAP + OPERATORS -->
-  <div class="viz-wrap panel">
-    <h2>Crash Frequency by Month × Decade • Top Operators</h2>
-    <p class="note">Left: a heatmap of seasonality across decades (subtle monthly patterns are visible in some periods). Right: a small number of operators account for many recorded crashes historically.</p>
-    <div class="charts">
-      <div id="heatmap" class="chart"></div>
-      <div>
-        <div id="operator_hist" class="chart"></div>
-        <div id="operator_err" class="error"></div>
+    <div class="flip-card">
+      <div class="flip-inner">
+        <div class="flip-front"><span>🛩️</span>Charkhi Dadri Collision<small>(Hover me)</small></div>
+        <div class="flip-back">
+          <div><strong>Year:</strong> 1996<br><strong>Operator:</strong> Saudi Arabian & Kazakhstan Airlines<br><strong>Aboard:</strong> 349<br><strong>Deaths:</strong> 349<br><em>Two jets collided near New Delhi — one of the worst mid-air disasters.</em></div>
+        </div>
       </div>
     </div>
-    <div class="callout"><strong>Context:</strong> Operator counts reflect <em>recorded events</em> in this dataset and may be influenced by fleet size, route exposure, era, and reporting practices.</div>
   </div>
 
-  <div class="footer" style="margin-top:24px;">
-    <p>Data: <a href="Plane_Crashes_Final.csv">Plane_Crashes_Final.csv</a> | Built with Vega-Lite</p>
-    <p class="meta">
-      Author: <strong>Rithvika Senthil</strong> ·
-      Last updated: <span id="lastUpdated" aria-label="last updated date"></span><br>
-      Methods: CSV cleaned (date parsed, lat/long signs normalised), annual aggregation for totals, month/decade bins for heatmap, top-20 operator counts.<br>
-      Source: <a href="Plane_Crashes_Final.csv" title="Open the compiled CSV">Local compiled CSV</a> (replace with public provenance link if available).<br>
-      <small>License: CC BY-4.0 · Contact: your.email@example.com</small>
+  <!-- How to Read -->
+  <div class="panel" style="text-align:left">
+    <h2>How to Read this Dashboard</h2>
+    <p class="note">
+      1) Start with the <strong>map</strong> and move the year slider to see when and where events were recorded.<br>
+      2) Compare <strong>fatalities vs. crash counts</strong> over time (left) then examine <strong>severity</strong> (right).<br>
+      3) Explore <strong>seasonality by decade</strong> and <strong>operator patterns</strong>.
     </p>
   </div>
 
-  <script>
-    /* ---------- MAP ---------- */
-    function mapSpec(widthPx){
-      return {
-        "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-        "autosize":{"type":"fit","contains":"padding"},
-        "width":widthPx,"height":560,
-        "projection":{"type":"equalEarth"},
-        "params":[{"name":"yearSel","value":1950,
-          "bind":{"input":"range","min":1908,"max":2023,"step":1,"name":"Year: "}}],
-        "layer":[
-          {
-            "data":{"url":"https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
-                    "format":{"type":"topojson","feature":"countries"}},
-            "mark":{"type":"geoshape","fill":"#e6e6e6","stroke":"white"}
-          },
-          {
-            "data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
-            "transform":[
-              {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
-              {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
-              {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
-              {"calculate":"test(/s/i, datum._latRaw)?-1:1","as":"_latSign"},
-              {"calculate":"test(/w/i, datum._lonRaw)?-1:1","as":"_lonSign"},
-              {"calculate":"toNumber(replace(datum._latRaw,/[^0-9.\\-]/g,''))","as":"_latNum"},
-              {"calculate":"toNumber(replace(datum._lonRaw,/[^0-9.\\-]/g,''))","as":"_lonNum"},
-              {"calculate":"datum._latSign*datum._latNum","as":"lat"},
-              {"calculate":"datum._lonSign*datum._lonNum","as":"lon"},
-              {"filter":"datum.Year==yearSel"},
-              {"filter":"isFinite(datum.lat)&&isFinite(datum.lon)"}
-            ],
-            "mark":{"type":"circle","opacity":0.7},
-            "encoding":{
-              "longitude":{"field":"lon","type":"quantitative"},
-              "latitude":{"field":"lat","type":"quantitative"},
-              "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
-              "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
-              "tooltip":[{"field":"Date"},{"field":"Location"},{"field":"Operator"},
-                         {"field":"Fatalities"},{"field":"Aboard"}]
-            }
-          }
-        ]
-      };
-    }
+  <!-- Key Insights -->
+  <div class="panel" style="text-align:left">
+    <h2>Key Insights at a Glance</h2>
+    <div class="callout">
+      <ul style="margin:0 0 0 18px;padding:0">
+        <li><strong>Concentration & Reporting:</strong> Records cluster along high-traffic routes and better-reporting regions.</li>
+        <li><strong>Safety Improvements:</strong> Fatalities and crash counts decline markedly post-1980 s.</li>
+        <li><strong>Severity Envelope:</strong> Most events fall well below the “all aboard” line — catastrophic events are rare.</li>
+        <li><strong>Seasonality & Operators:</strong> Subtle monthly trends emerge; a few operators dominate historic totals.</li>
+      </ul>
+    </div>
+  </div>
+</header>
 
-    /* ---------- LINE + SCATTER + HEATMAP + OPERATORS ---------- */
-    const specLine={...}; // (unchanged content from your version)
-    const specScatter={...};
-    const specHeatmap={...};
-    const specOperator={...};
+<!-- MAP -->
+<div class="viz-wrap panel">
+  <h2>Crash Locations & Fatalities (Map)</h2>
+  <p class="note">Use the year slider to explore. Larger / darker circles = more fatalities; clusters align with major flight corridors.</p>
+  <div id="crash_map" class="chart"></div><div id="map_err" class="error"></div>
+  <div class="callout"><strong>Annotation:</strong> Try 1977 (Tenerife) and 1985 (JAL 123) for major events.</div>
+</div>
 
-    function renderAll(){
-      const mapEl=document.getElementById('crash_map');
-      const mapWidth=Math.max(700, mapEl.clientWidth || 700);
-      vegaEmbed('#crash_map', mapSpec(mapWidth), {actions:{export:true,source:true,editor:true}});
-      vegaEmbed('#line_chart', specLine);
-      vegaEmbed('#scatter_chart', specScatter);
-      vegaEmbed('#heatmap', specHeatmap);
-      vegaEmbed('#operator_hist', specOperator);
-    }
-    renderAll();
-    window.addEventListener('resize', renderAll);
+<!-- LINE + SCATTER -->
+<div class="viz-wrap panel">
+  <h2>Fatalities & Crash Numbers Over Time • Aboard vs Fatalities</h2>
+  <p class="note">Left: yearly totals peak mid-20th century then fall. Right: each point = one crash; dashed line = fatalities = aboard.</p>
+  <div class="charts"><div id="line_chart" class="chart"></div><div id="scatter_chart" class="chart"></div></div>
+  <div class="callout"><strong>Interpretation:</strong> The widening gap between red (fatalities) and blue (crashes) lines suggests improved survivability.</div>
+</div>
 
-    (function(){
-      const el=document.getElementById('lastUpdated');
-      if(el){
-        el.textContent=new Date().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
-      }
-    })();
-  </script>
+<!-- HEATMAP + OPERATORS -->
+<div class="viz-wrap panel">
+  <h2>Crash Frequency by Month × Decade • Top Operators</h2>
+  <p class="note">Left: heatmap shows subtle seasonality; Right: bars rank operators by total recorded crashes.</p>
+  <div class="charts">
+    <div id="heatmap" class="chart"></div>
+    <div><div id="operator_hist" class="chart"></div><div id="operator_err" class="error"></div></div>
+  </div>
+  <div class="callout"><strong>Context:</strong> Operator counts depend on fleet size, routes, and reporting era.</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer" style="margin-top:24px;">
+  <p>Data: <a href="Plane_Crashes_Final.csv">Plane_Crashes_Final.csv</a> | Built with Vega-Lite</p>
+  <p class="meta">
+    Author: <strong>Rithvika Senthil</strong> · Last updated: <span id="lastUpdated"></span><br>
+    Methods: Date parsed + coordinates normalised; aggregated by year/decade; top-20 operators.<br>
+    Source: <a href="Plane_Crashes_Final.csv">Local compiled CSV</a> (Replace with public dataset link).<br>
+    <small>License: CC BY-4.0 · Contact: your.email@example.com</small>
+  </p>
+</div>
+
+<script>
+/* ---------- MAP ---------- */
+function mapSpec(widthPx){
+  return {
+    "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+    "autosize":{"type":"fit","contains":"padding"},
+    "width":widthPx,"height":560,
+    "projection":{"type":"equalEarth"},
+    "params":[{"name":"yearSel","value":1950,
+      "bind":{"input":"range","min":1908,"max":2023,"step":1,"name":"Year: "}}],
+    "layer":[
+      {"data":{"url":"https://cdn.jsdelivr.net/npm/vega-datasets@2.0.0/data/world-110m.json",
+               "format":{"type":"topojson","feature":"countries"}},
+       "mark":{"type":"geoshape","fill":"#e6e6e6","stroke":"white"}},
+      {"data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
+       "transform":[
+         {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+         {"calculate":"isValid(datum.Latitude)? trim(datum.Latitude): ''","as":"_latRaw"},
+         {"calculate":"isValid(datum.Longitude)? trim(datum.Longitude): ''","as":"_lonRaw"},
+         {"calculate":"test(/s/i, datum._latRaw)?-1:1","as":"_latSign"},
+         {"calculate":"test(/w/i, datum._lonRaw)?-1:1","as":"_lonSign"},
+         {"calculate":"toNumber(replace(datum._latRaw,/[^0-9.\\-]/g,''))","as":"_latNum"},
+         {"calculate":"toNumber(replace(datum._lonRaw,/[^0-9.\\-]/g,''))","as":"_lonNum"},
+         {"calculate":"datum._latSign*datum._latNum","as":"lat"},
+         {"calculate":"datum._lonSign*datum._lonNum","as":"lon"},
+         {"filter":"datum.Year==yearSel"},
+         {"filter":"isFinite(datum.lat)&&isFinite(datum.lon)"}],
+       "mark":{"type":"circle","opacity":0.7},
+       "encoding":{
+         "longitude":{"field":"lon","type":"quantitative"},
+         "latitude":{"field":"lat","type":"quantitative"},
+         "size":{"field":"Fatalities","type":"quantitative","scale":{"range":[12,900]}},
+         "color":{"field":"Fatalities","type":"quantitative","scale":{"scheme":"reds"}},
+         "tooltip":[{"field":"Date"},{"field":"Location"},{"field":"Operator"},{"field":"Fatalities"},{"field":"Aboard"}]
+       }}
+    ]
+  };
+}
+
+/* ---------- LINE ---------- */
+const specLine={
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":"container","height":320,
+  "data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
+  "transform":[{"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},{"filter":"isValid(datum.Year)"}],
+  "resolve":{"scale":{"y":"independent"}},
+  "layer":[
+    {"transform":[{"aggregate":[{"op":"sum","field":"Fatalities","as":"Fatalities"}],"groupby":["Year"]}],
+     "mark":{"type":"line","point":true,"strokeWidth":2,"color":"#d62728"},
+     "encoding":{"x":{"field":"Year","type":"quantitative"},
+                 "y":{"field":"Fatalities","type":"quantitative","axis":{"title":"Fatalities"}}}},
+    {"transform":[{"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Year"]}],
+     "mark":{"type":"line","point":true,"strokeWidth":2,"color":"#1f77b4"},
+     "encoding":{"x":{"field":"Year","type":"quantitative"},
+                 "y":{"field":"Crashes","type":"quantitative","axis":{"title":"Crashes","orient":"right"}}}}
+  ]
+};
+
+/* ---------- SCATTER ---------- */
+const specScatter={
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":"container","height":320,
+  "data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
+  "transform":[{"filter":"isValid(datum.Aboard)&&isValid(datum.Fatalities)"}],
+  "layer":[
+    {"mark":{"type":"line","strokeDash":[4,4],"opacity":0.7},
+     "data":{"values":[{"x":0,"y":0},{"x":650,"y":650}]},
+     "encoding":{"x":{"field":"x","type":"quantitative","title":"Aboard","scale":{"domain":[0,650]}},
+                 "y":{"field":"y","type":"quantitative","title":"Fatalities","scale":{"domain":[0,650]}}}},
+    {"mark":{"type":"point","filled":true,"opacity":0.6,"color":"#1f77b4"},
+     "encoding":{"x":{"field":"Aboard","type":"quantitative","scale":{"domain":[0,650]}},
+                 "y":{"field":"Fatalities","type":"quantitative","scale":{"domain":[0,650]}},
+                 "tooltip":[{"field":"Date"},{"field":"Operator"},{"field":"Aboard"},{"field":"Fatalities"}]}}
+  ]
+};
+
+/* ---------- HEATMAP ---------- */
+const specHeatmap={
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":"container","height":420,
+  "data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
+  "transform":[
+    {"calculate":"year(timeParse(datum.Date,'%m/%d/%Y'))","as":"Year"},
+    {"calculate":"month(timeParse(datum.Date,'%m/%d/%Y'))","as":"MonthIndex"},
+    {"calculate":"floor(datum.Year/10)*10","as":"Decade"},
+    {"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Decade","MonthIndex"]},
+    {"calculate":"toString(datum.Decade)+'s'","as":"DecadeLabel"},
+    {"calculate":"['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][datum.MonthIndex]","as":"MonthName"}
+  ],
+  "mark":{"type":"rect"},
+  "encoding":{
+    "x":{"field":"MonthName","type":"ordinal","sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
+    "y":{"field":"DecadeLabel","type":"ordinal","sort":{"field":"Decade","order":"ascending"}},
+    "color":{"field":"Crashes","type":"quantitative","scale":{"scheme":"reds"}},
+    "tooltip":[{"field":"DecadeLabel"},{"field":"MonthName"},{"field":"Crashes"}]
+  }
+};
+
+/* ---------- OPERATORS ---------- */
+const specOperator={
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":"container","height":420,
+  "data":{"url":"Plane_Crashes_Final.csv","format":{"type":"csv"}},
+  "transform":[
+    {"filter":"isValid(datum.Operator)"},
+    {"aggregate":[{"op":"count","as":"Crashes"}],"groupby":["Operator"]},
+    {"window":[{"op":"rank","as":"rank"}],"sort":[{"field":"Crashes","order":"descending"}]},
+    {"filter":"datum.rank <= 20"}
+  ],
+  "mark":{"type":"bar"},
+  "encoding":{
+    "y":{"field":"Operator","type":"ordinal","sort":"-x","axis":{"labelLimit":200}},
+    "x":{"field":"Crashes","type":"quantitative"},
+    "color":{"value":"#1f77b4"},
+    "tooltip":[{"field":"Operator"},{"field":"Crashes"}]
+  }
+};
+
+/* ---------- Render ---------- */
+function renderAll(){
+  const mapEl=document.getElementById('crash_map');
+  const mapWidth=Math.max(700, mapEl.clientWidth||700);
+  vegaEmbed('#crash_map',mapSpec(mapWidth));
+  vegaEmbed('#line_chart',specLine);
+  vegaEmbed('#scatter_chart',specScatter);
+  vegaEmbed('#heatmap',specHeatmap);
+  vegaEmbed('#operator_hist',specOperator);
+}
+renderAll();
+window.addEventListener('resize',renderAll);
+
+document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+</script>
 </body>
 </html>
